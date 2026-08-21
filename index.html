@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Portfolio de Franco Nicosia — Diseño gráfico, identidad visual, reels, contenido digital, Klouser y gestión visual de marcas." />
+  <title>Franco Nicosia — Diseñador Gráfico</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://turuleka.com" crossorigin>
+  <link rel="dns-prefetch" href="//turuleka.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="global-noise"></div>
+  <div class="global-grid"></div>
+  <div class="mouse-glow" id="mouseGlow"></div>
+
+  <div class="transition-overlay" id="transitionOverlay">
+    <div class="transition-beam" id="transitionBeam"></div>
+    <div class="transition-flare" id="transitionFlare"></div>
+    <span class="transition-index" id="transitionIndex">01 → 02</span>
+  </div>
+
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"><span>+</span></div>
+
+  <header class="header">
+    <button class="brand magnetic" data-jump="0" aria-label="Ir al inicio">
+      <span class="brand-symbol">FN</span>
+      <span class="brand-copy">
+        <strong>Franco Nicosia</strong>
+        <small>Diseñador gráfico</small>
+      </span>
+    </button>
+    <div class="header-center"><span></span>PORTFOLIO / 2026<span></span></div>
+    <div class="header-location"><i></i>ARGENTINA</div>
+  </header>
+
+  <div class="page-counter">
+    <strong id="currentPage">01</strong><i></i><small>04</small>
+  </div>
+
+  <div class="direction-ui">
+    <small>NEXT</small>
+    <div class="direction-arrow" id="directionArrow">→</div>
+  </div>
+
+  <nav class="route-nav" aria-label="Secciones del portfolio">
+    <button class="route active magnetic" data-jump="0"><span>01</span><small>Inicio</small></button><i></i>
+    <button class="route magnetic" data-jump="1"><span>02</span><small>Franco</small></button><i></i>
+    <button class="route magnetic" data-jump="2"><span>03</span><small>Trabajo</small></button><i></i>
+    <button class="route magnetic" data-jump="3"><span>04</span><small>Reels</small></button>
+  </nav>
+
+  <main class="stage">
+    <!-- 01 LANDING -->
+    <section class="scene scene-landing" data-scene="0">
+      <div class="landing-background-light"></div>
+      <div class="landing-sacred-grid" id="landingSacredGrid" aria-hidden="true"></div>
+      <div class="landing-scanline" id="landingScanline"></div>
+
+      <div class="landing-name-helper reveal-item" aria-hidden="true">
+        <i></i>
+        <span>EL CURSOR TAMBIÉN MODIFICA EL NOMBRE</span>
+      </div>
+
+      <div class="landing-name-wrap" id="landingNameWrap">
+        <h1 class="landing-name" id="landingName" aria-label="Franco Nicosia">
+          <span class="landing-name-line" data-text="FRANCO">FRANCO</span>
+          <span class="landing-name-line" data-text="NICOSIA">NICOSIA</span>
+        </h1>
+      </div>
+
+      <canvas id="landingThree" class="landing-three"></canvas>
+      <div class="artifact-fallback" id="artifactFallback" aria-hidden="true">
+        <div class="fallback-ring ring-a"></div>
+        <div class="fallback-ring ring-b"></div>
+        <div class="fallback-ring ring-c"></div>
+      </div>
+
+      <div class="landing-side-meta reveal-item">
+        <span></span>
+        <p>GRAPHIC DESIGN<br>CONTENT<br>VISUAL DIRECTION</p>
+      </div>
+
+      <footer class="landing-footer">
+        <span>DISEÑO · CONTENIDO · COMUNIDAD</span>
+        <span>© 2026</span>
+      </footer>
+    </section>
+
+    <!-- 02 SOBRE FRANCO -->
+    <section class="scene scene-about" data-scene="1">
+      <div class="about-ambient about-ambient-a"></div>
+      <div class="about-ambient about-ambient-b"></div>
+      <div class="scene-inner about-layout">
+        <div class="about-copy">
+          <div class="eyebrow reveal-item"><i></i>02 / SOBRE MÍ</div>
+          <h2 class="about-title">
+            <span class="reveal-item">Detrás de cada</span>
+            <span class="reveal-item">pieza hay una</span>
+            <em class="reveal-item">mirada.</em>
+          </h2>
+          <p class="about-description reveal-item">Soy Franco, tengo 33 años y soy diseñador gráfico oriundo de Santa Fe.</p>
+          <p class="about-description about-description-secondary reveal-item">Trabajo de manera cercana con personas y proyectos de distintos lugares: Santa Fe, Mar del Plata, Buenos Aires y también Colombia.</p>
+          <p class="about-description about-description-secondary reveal-item">Me interesa entender cada universo antes de diseñarlo: qué quiere transmitir, cómo habla y qué necesita para construir una presencia visual reconocible.</p>
+          <div class="about-data reveal-item">
+            <div><small>01</small><strong>33</strong><span>años</span></div>
+            <div><small>02</small><strong>SF</strong><span>origen</span></div>
+            <div><small>03</small><strong>LATAM</strong><span>trabajo remoto</span></div>
+          </div>
+        </div>
+
+        <div class="sphere-world reveal-item">
+          <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div>
+          <div class="photo-sphere" id="photoSphere">
+            <img src="Assets/Fotoperfil2.webp" alt="Franco Nicosia" class="sphere-photo" draggable="false" />
+            <div class="sphere-shell" id="sphereShell"></div>
+            <canvas class="microbot-canvas" id="microbotCanvas"></canvas>
+            <div class="sphere-reflection"></div>
+            <div class="sphere-center-aura" aria-hidden="true"></div>
+            <div class="sphere-reveal-pointer" id="sphereRevealPointer"><i></i><small>DESCUBRIR</small></div>
+            <div class="sphere-whatsapp-hint" id="sphereWhatsappHint" aria-hidden="true">
+              <span>HABLAR CON FRANCO</span><i>↗</i>
+            </div>
+            <div class="sphere-meta"><span>FN / 1992</span><span>DESCUBRÍ · CONTACTÁ</span></div>
+          </div>
+          <div class="sphere-card sphere-card-one parallax"><span>01</span><div><strong>Diseño</strong><small>identidad visual</small></div></div>
+          <div class="sphere-card sphere-card-two parallax"><span>02</span><div><strong>Edición</strong><small>reels + video</small></div></div>
+          <div class="sphere-card sphere-card-three parallax"><span>03</span><div><strong>Gestión</strong><small>contenido + comunidad</small></div></div>
+          <div class="sphere-helper">DESCUBRÍ LA FOTO<br>CON EL CURSOR</div>
+        </div>
+      </div>
+      <footer class="scene-footer"><span>02 / 04</span><span>PERSONA · MIRADA · PROCESO</span></footer>
+    </section>
+
+    <!-- 03 TRABAJO -->
+    <section class="scene scene-work" data-scene="2">
+      <div class="work-ambient"></div>
+      <div class="scene-inner work-layout work-layout-showcase">
+        <div class="work-copy">
+          <div class="eyebrow reveal-item"><i></i>03 / CÓMO TRABAJO</div>
+          <h2 class="work-title">
+            <span class="reveal-item">No hago piezas</span>
+            <span class="reveal-item">aisladas.</span>
+            <em class="reveal-item">Construyo presencia.</em>
+          </h2>
+          <p class="work-description reveal-item">La idea es que todo dialogue entre sí: la estética de Instagram, los reels, las clases, las campañas y la experiencia dentro de una membresía.</p>
+          <div class="client-worlds reveal-item"><span>ARTE EN ALAMBRE</span><i></i><span>MIXED MEDIA</span><i></i><span>MEMBRESÍAS</span></div>
+        </div>
+
+        <div class="work-showcase reveal-item" aria-label="Muestra de trabajo en redes sociales">
+
+          <!-- CARRUSEL DE CONTENIDO -->
+          <article class="showcase-panel content-showcase" id="contentShowcase">
+            <div class="showcase-panel-head">
+              <div>
+                <span class="panel-index">01</span>
+                <span class="panel-kicker">SOCIAL CONTENT</span>
+              </div>
+              <span class="panel-type">CARRUSELES / 4:5</span>
+            </div>
+
+            <div class="content-carousel-viewport" id="contentCarouselViewport">
+              <img
+                id="contentCarouselImageA"
+                class="content-carousel-image is-visible"
+                src="https://turuleka.com/wp-content/uploads/2026/08/1.png"
+                alt="Diseño de carrusel para Turuleka"
+                draggable="false"
+              />
+              <img
+                id="contentCarouselImageB"
+                class="content-carousel-image"
+                src="https://turuleka.com/wp-content/uploads/2026/08/2.png"
+                alt="Diseño de carrusel para Turuleka"
+                draggable="false"
+              />
+
+              <div class="content-carousel-vignette"></div>
+
+              <div class="content-carousel-brand">
+                <span id="contentCarouselBrand">TURULEKA</span>
+                <small id="contentCarouselCounter">01 / 12</small>
+              </div>
+
+              <div class="content-carousel-rail" aria-hidden="true">
+                <span class="content-carousel-rail-progress" id="contentCarouselRailProgress"></span>
+              </div>
+
+              <div class="content-carousel-controls">
+                <button class="content-carousel-btn magnetic" id="contentCarouselPrev" type="button" aria-label="Imagen anterior">↑</button>
+                <button class="content-carousel-btn magnetic" id="contentCarouselNext" type="button" aria-label="Imagen siguiente">↓</button>
+              </div>
+            </div>
+
+            <div class="showcase-panel-foot">
+              <div>
+                <strong>Carruseles que sostienen una identidad.</strong>
+                <p>Diseño editorial, ritmo visual y piezas pensadas como parte de un sistema.</p>
+              </div>
+              <span class="panel-live"><i></i>AUTO</span>
+            </div>
+          </article>
+
+          <!-- DECK DE CUENTAS -->
+          <article class="showcase-panel instagram-showcase" id="instagramShowcase">
+            <div class="showcase-panel-head">
+              <div>
+                <span class="panel-index">02</span>
+                <span class="panel-kicker">INSTAGRAM</span>
+              </div>
+              <span class="panel-type">CUENTAS / DIRECCIÓN</span>
+            </div>
+
+            <div class="instagram-deck" id="instagramDeck">
+              <a
+                class="instagram-profile-card is-front"
+                data-profile="ale"
+                href="https://www.instagram.com/ale.asesor.fit/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Abrir Instagram de Ale Asesor Fit"
+              >
+                <img src="https://turuleka.com/wp-content/uploads/2026/08/igAle.jpeg" alt="Feed de Instagram de Ale Asesor Fit" draggable="false" />
+                <div class="ig-card-shade"></div>
+                <div class="ig-card-top"><span>01</span><span>ACADEMIA DEPORTIVA</span></div>
+                <div class="ig-card-bottom">
+                  <div><small>INSTAGRAM</small><strong>@ale.asesor.fit</strong></div>
+                  <span class="ig-open">↗</span>
+                </div>
+              </a>
+
+              <a
+                class="instagram-profile-card is-middle"
+                data-profile="ceci"
+                href="https://www.instagram.com/mariaceciliaturuleka/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Abrir Instagram de María Cecilia Turuleka"
+              >
+                <img src="https://turuleka.com/wp-content/uploads/2026/08/igceci.jpeg" alt="Feed de Instagram de María Cecilia Turuleka" draggable="false" loading="lazy" />
+                <div class="ig-card-shade"></div>
+                <div class="ig-card-top"><span>02</span><span>MIXED MEDIA</span></div>
+                <div class="ig-card-bottom">
+                  <div><small>INSTAGRAM</small><strong>@mariaceciliaturuleka</strong></div>
+                  <span class="ig-open">↗</span>
+                </div>
+              </a>
+
+              <a
+                class="instagram-profile-card is-back"
+                data-profile="vane"
+                href="https://www.instagram.com/tallerdearteyreciclado.vg/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Abrir Instagram de Taller de Arte y Reciclado VG"
+              >
+                <img src="https://turuleka.com/wp-content/uploads/2026/08/igvane.jpeg" alt="Feed de Instagram de Taller de Arte y Reciclado VG" draggable="false" loading="lazy" />
+                <div class="ig-card-shade"></div>
+                <div class="ig-card-top"><span>03</span><span>ARTE EN ALAMBRE</span></div>
+                <div class="ig-card-bottom">
+                  <div><small>INSTAGRAM</small><strong>@tallerdearteyreciclado.vg</strong></div>
+                  <span class="ig-open">↗</span>
+                </div>
+              </a>
+
+              <button class="instagram-deck-next magnetic" id="instagramDeckNext" type="button" aria-label="Ver siguiente cuenta">
+                <span>→</span>
+                <small>SIGUIENTE</small>
+              </button>
+
+              <div class="instagram-deck-dots" id="instagramDeckDots" aria-hidden="true">
+                <i class="active"></i><i></i><i></i>
+              </div>
+            </div>
+
+            <div class="showcase-panel-foot instagram-panel-foot">
+              <div>
+                <strong>Una estética distinta para cada universo.</strong>
+                <p>Dirección visual, contenido y acompañamiento para potenciar cada cuenta.</p>
+              </div>
+              <span class="panel-live"><i></i>03 CUENTAS</span>
+            </div>
+          </article>
+
+        </div>
+      </div>
+
+      <!-- V19 · VISTA COMPLETA HOLOGRÁFICA DEL CARRUSEL -->
+      <div class="content-hologram-preview" id="contentHologramPreview" aria-hidden="true">
+        <div class="hologram-preview-glow" aria-hidden="true"></div>
+        <div class="hologram-preview-stage" id="hologramPreviewStage">
+          <div class="hologram-preview-frame">
+            <img id="hologramPreviewImage" src="" alt="Vista completa de la pieza del carrusel" draggable="false" />
+            <div class="hologram-preview-scan" aria-hidden="true"></div>
+            <div class="hologram-preview-grid" aria-hidden="true"></div>
+            <div class="hologram-preview-corners" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="hologram-preview-nav" aria-label="Navegación de la vista completa">
+            <button class="hologram-nav-btn hologram-nav-prev magnetic" id="hologramPreviewPrev" type="button" aria-label="Ver imagen anterior">
+              <span>←</span><small>ANTERIOR</small>
+            </button>
+            <button class="hologram-nav-btn hologram-nav-next magnetic" id="hologramPreviewNext" type="button" aria-label="Ver imagen siguiente">
+              <small>SIGUIENTE</small><span>→</span>
+            </button>
+          </div>
+          <div class="hologram-preview-meta">
+            <div><span id="hologramPreviewBrand">TURULEKA</span><small>VISTA COMPLETA · ← → / RUEDA</small></div>
+            <strong id="hologramPreviewCounter">01 / 12</strong>
+          </div>
+        </div>
+      </div>
+
+      <footer class="scene-footer"><span>03 / 04</span><span>SOCIAL · CARRUSELES · CUENTAS · DIRECCIÓN</span></footer>
+    </section>
+
+    <!-- 04 REELS -->
+    <section class="scene scene-reels" data-scene="3">
+      <div class="reels-ambient"></div>
+      <div class="scene-inner reels-layout">
+        <div class="reels-copy">
+          <div class="eyebrow reveal-item"><i></i>04 / REELS + VIDEO</div>
+          <h2 class="reels-title"><span class="reveal-item">Ideas que</span><em class="reveal-item">se mueven.</em></h2>
+          <p class="reels-description reveal-item">Edición de reels, testimonios, clases, contenido promocional y piezas verticales pensadas para comunicar con ritmo y personalidad.</p>
+          <button class="reels-back next-trigger magnetic reveal-item"><span>VOLVER AL INICIO</span><span>←</span></button>
+        </div>
+
+        <div class="reel-gallery">
+
+          <div class="reel-devices-row" aria-label="Selección de reels">
+
+            <!-- Archivo 2 · izquierda -->
+            <article class="reel-device reel-device-left tilt reveal-item" data-reel-src="https://turuleka.com/wp-content/uploads/2026/08/2.mp4" data-reel-id="02">
+              <div class="device-frame">
+                <div class="device-notch"></div>
+                <div class="reel-screen reel-screen-one">
+                  <video class="reel-device-video" src="https://turuleka.com/wp-content/uploads/2026/08/2.mp4" muted playsinline preload="metadata" aria-hidden="true"></video>
+                  <div class="reel-screen-gradient"></div>
+                  <div class="reel-video-vignette"></div>
+                  <span class="reel-number">REEL / 02</span>
+                  <button class="reel-play magnetic" type="button" data-open-reel="https://turuleka.com/wp-content/uploads/2026/08/2.mp4" data-reel-label="REEL 02" aria-label="Reproducir Reel 02">
+                    <span class="reel-play-icon">▶</span>
+                    <small>PLAY</small>
+                  </button>
+                  <div class="reel-caption">
+                    <small>SOCIAL</small>
+                    <strong>Proceso creativo</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="reel-meta"><span>VERTICAL / 9:16</span><span class="reel-duration">--:--</span></div>
+            </article>
+
+            <!-- Archivo 1 · centro -->
+            <article class="reel-device reel-device-main tilt reveal-item" data-reel-src="https://turuleka.com/wp-content/uploads/2026/08/1.mp4" data-reel-id="01">
+              <div class="device-frame">
+                <div class="device-notch"></div>
+                <div class="reel-screen reel-screen-main">
+                  <video class="reel-device-video" src="https://turuleka.com/wp-content/uploads/2026/08/1.mp4" muted playsinline preload="metadata" aria-hidden="true"></video>
+                  <div class="reel-screen-grain"></div>
+                  <div class="reel-video-vignette"></div>
+                  <span class="reel-number">REEL / 01</span>
+                  <button class="reel-play reel-play-main magnetic" type="button" data-open-reel="https://turuleka.com/wp-content/uploads/2026/08/1.mp4" data-reel-label="REEL 01" aria-label="Reproducir Reel 01">
+                    <span class="reel-play-icon">▶</span>
+                    <small>PLAY</small>
+                  </button>
+                  <div class="reel-caption reel-caption-main">
+                    <small>STORYTELLING</small>
+                    <strong>Una historia<br>en movimiento.</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="reel-meta"><span>VERTICAL / 9:16</span><span class="reel-duration">--:--</span></div>
+            </article>
+
+            <!-- Archivo 3 · derecha -->
+            <article class="reel-device reel-device-right tilt reveal-item" data-reel-src="https://turuleka.com/wp-content/uploads/2026/08/3.mp4" data-reel-id="03">
+              <div class="device-frame">
+                <div class="device-notch"></div>
+                <div class="reel-screen reel-screen-three">
+                  <video class="reel-device-video" src="https://turuleka.com/wp-content/uploads/2026/08/3.mp4" muted playsinline preload="metadata" aria-hidden="true"></video>
+                  <div class="reel-screen-gradient"></div>
+                  <div class="reel-video-vignette"></div>
+                  <span class="reel-number">REEL / 03</span>
+                  <button class="reel-play magnetic" type="button" data-open-reel="https://turuleka.com/wp-content/uploads/2026/08/3.mp4" data-reel-label="REEL 03" aria-label="Reproducir Reel 03">
+                    <span class="reel-play-icon">▶</span>
+                    <small>PLAY</small>
+                  </button>
+                  <div class="reel-caption">
+                    <small>TESTIMONIO</small>
+                    <strong>Contenido real</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="reel-meta"><span>VERTICAL / 9:16</span><span class="reel-duration">--:--</span></div>
+            </article>
+
+          </div>
+
+          <div class="editing-timeline reel-timeline-compact reveal-item" aria-label="Timeline decorativa de edición">
+            <div class="timeline-header"><span>EDITING / TIMELINE</span><span>00:00:34:21</span></div>
+            <div class="timeline-track"><small>V1</small><i class="clip clip-one"></i><i class="clip clip-two"></i><i class="clip clip-three"></i></div>
+            <div class="timeline-track"><small>V2</small><i class="clip clip-four"></i><i class="clip clip-five"></i></div>
+            <div class="timeline-track"><small>A1</small><i class="waveform"></i></div>
+            <div class="timeline-playhead"></div>
+          </div>
+
+        </div>
+      </div>
+      <footer class="scene-footer"><span>04 / 04</span><span>EDIT · STORY · MOTION</span></footer>
+    </section>
+  </main>
+
+  <!-- V25 · REPRODUCTOR ESTABILIZADO / BUFFER INTELIGENTE -->
+  <div class="reel-video-viewer" id="reelVideoViewer" aria-hidden="true">
+    <div class="reel-viewer-backdrop" data-close-reel-viewer aria-hidden="true"></div>
+    <div class="reel-viewer-glow" aria-hidden="true"></div>
+
+    <section class="reel-viewer-stage" role="dialog" aria-modal="true" aria-labelledby="reelViewerLabel">
+      <div class="reel-viewer-tech reel-viewer-tech-top"><span>VIDEO / ORIGINAL RATIO</span><i></i><strong id="reelViewerLabel">REEL 01</strong></div>
+
+      <div class="reel-viewer-frame" id="reelViewerFrame">
+        <video id="reelViewerVideo" controls playsinline preload="auto"></video>
+        <div class="reel-viewer-grid" aria-hidden="true"></div>
+        <div class="reel-viewer-scan" aria-hidden="true"></div>
+        <div class="reel-viewer-corners" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <div class="reel-viewer-loading" id="reelViewerLoading"><i></i><span>CARGANDO VIDEO</span></div>
+        <div class="reel-viewer-error" id="reelViewerError">No se pudo cargar este video.</div>
+      </div>
+
+      <div class="reel-viewer-tech reel-viewer-tech-bottom"><span>ESC PARA CERRAR</span><i></i><strong>FRANCO NICOSIA · EDIT</strong></div>
+
+      <button class="reel-viewer-close magnetic" id="reelViewerClose" type="button" aria-label="Cerrar video">
+        <span>×</span><small>CERRAR</small>
+      </button>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

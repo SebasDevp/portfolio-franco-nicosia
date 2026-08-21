@@ -1,0 +1,16 @@
+V26 — VIDEOS REMOTOS / GITHUB READY
+
+El portfolio NO usa los MP4 locales para reproducir los reels.
+Los videos se cargan directamente desde:
+
+https://turuleka.com/wp-content/uploads/2026/08/1.mp4
+https://turuleka.com/wp-content/uploads/2026/08/2.mp4
+https://turuleka.com/wp-content/uploads/2026/08/3.mp4
+
+Orden visual:
+- Centro: 1.mp4
+- Izquierda: 2.mp4
+- Derecha: 3.mp4
+
+Podés conservar 1.mp4, 2.mp4 y 3.mp4 dentro de Assets/videos como respaldo local.
+El archivo .gitignore evita que GitHub intente subirlos.

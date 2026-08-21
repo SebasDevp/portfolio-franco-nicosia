@@ -1,0 +1,9 @@
+# Videos locales: el portfolio usa las URLs remotas de Turuleka
+Assets/videos/*.mp4
+
+# Configuración local de VS Code
+.vscode/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
