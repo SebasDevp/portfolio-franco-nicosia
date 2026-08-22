@@ -689,7 +689,7 @@ landingSceneEl.addEventListener('pointerleave',()=>{
   requestAnimationFrame(reactiveLandingColorLoop);
 })();
 
-console.info('[Portfolio] build V29 mobile-reels');
+console.info('[Portfolio] build V30 vegvisir-nav');
 
 async function boot(){try{await document.fonts.ready}catch(error){console.warn('No se pudieron esperar las fuentes.',error)}configureMobileExperience();initLandingThree();updateInterface();landingNameWrap.classList.add('is-ready');revealSceneContent(scenes[currentScene]);if(mobileMode&&currentScene===1)scheduleIdleSphereTease(1050)}
 boot();

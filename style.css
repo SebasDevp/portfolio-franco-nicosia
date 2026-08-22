@@ -3734,3 +3734,48 @@ body[data-scene="3"] .reel-device-video{
     transform:scale(1.17)!important;
   }
 }
+
+/* =========================================================
+   V30 — VEGVÍSIR + NEXT ARROW INTERACTIVA
+   - Reemplaza la Flor de la Vida por un Vegvísir sutil y reactivo.
+   - Conserva el mismo campo de color negro → verde ligado al cursor/touch.
+   - La flecha NEXT ahora es un botón real y avanza al tocar/clickear.
+========================================================= */
+.landing-sacred-grid{
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800'%3E%3Cg fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='600' cy='400' r='38'/%3E%3Ccircle cx='600' cy='400' r='11'/%3E%3Cpath d='M600 362V104M600 104L570 142M600 104L630 142M600 154H650M600 188L568 210'/%3E%3Cpath d='M627 373L812 188M812 188L764 196M812 188L804 236M777 223L814 260M748 252L728 216'/%3E%3Cpath d='M638 400H914M914 400L873 370M914 400L873 430M852 400V350M817 400L790 432'/%3E%3Cpath d='M627 427L812 612M812 612L764 604M812 612L804 564M777 577L814 540M748 548L728 584'/%3E%3Cpath d='M600 438V696M600 696L570 658M600 696L630 658M600 646H550M600 612L632 590'/%3E%3Cpath d='M573 427L388 612M388 612L436 604M388 612L396 564M423 577L386 540M452 548L472 584'/%3E%3Cpath d='M562 400H286M286 400L327 370M286 400L327 430M348 400V450M383 400L410 368'/%3E%3Cpath d='M573 373L388 188M388 188L436 196M388 188L396 236M423 223L386 260M452 252L472 216'/%3E%3Cpath opacity='.72' d='M600 322V302M678 400H698M600 478V498M522 400H502M655 345L669 331M655 455L669 469M545 455L531 469M545 345L531 331'/%3E%3C/g%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800'%3E%3Cg fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='600' cy='400' r='38'/%3E%3Ccircle cx='600' cy='400' r='11'/%3E%3Cpath d='M600 362V104M600 104L570 142M600 104L630 142M600 154H650M600 188L568 210'/%3E%3Cpath d='M627 373L812 188M812 188L764 196M812 188L804 236M777 223L814 260M748 252L728 216'/%3E%3Cpath d='M638 400H914M914 400L873 370M914 400L873 430M852 400V350M817 400L790 432'/%3E%3Cpath d='M627 427L812 612M812 612L764 604M812 612L804 564M777 577L814 540M748 548L728 584'/%3E%3Cpath d='M600 438V696M600 696L570 658M600 696L630 658M600 646H550M600 612L632 590'/%3E%3Cpath d='M573 427L388 612M388 612L436 604M388 612L396 564M423 577L386 540M452 548L472 584'/%3E%3Cpath d='M562 400H286M286 400L327 370M286 400L327 430M348 400V450M383 400L410 368'/%3E%3Cpath d='M573 373L388 188M388 188L436 196M388 188L396 236M423 223L386 260M452 252L472 216'/%3E%3Cpath opacity='.72' d='M600 322V302M678 400H698M600 478V498M522 400H502M655 345L669 331M655 455L669 469M545 455L531 469M545 345L531 331'/%3E%3C/g%3E%3C/svg%3E");
+  -webkit-mask-repeat:no-repeat;
+  mask-repeat:no-repeat;
+  -webkit-mask-position:center;
+  mask-position:center;
+  -webkit-mask-size:min(1120px,90vw) auto;
+  mask-size:min(1120px,90vw) auto;
+}
+
+.direction-arrow{
+  cursor:pointer;
+  appearance:none;
+  -webkit-appearance:none;
+  touch-action:manipulation;
+  transition:transform .24s ease,border-color .24s ease,background .24s ease,box-shadow .24s ease;
+}
+.direction-arrow:hover,
+.direction-arrow:focus-visible{
+  transform:scale(1.08);
+  border-color:rgba(117,255,121,.46);
+  box-shadow:0 0 28px rgba(117,255,121,.10);
+}
+.direction-arrow:active{transform:scale(.94)}
+
+@media(max-width:900px){
+  body.mobile-experience .scene-landing .landing-sacred-grid{
+    opacity:.105;
+    -webkit-mask-size:920px auto;
+    mask-size:920px auto;
+  }
+  body.mobile-experience .scene-landing.name-active .landing-sacred-grid{opacity:.155}
+  body.mobile-experience .direction-arrow{
+    min-width:40px;
+    min-height:40px;
+  }
+}
