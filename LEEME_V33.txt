@@ -1,0 +1,1 @@
+V33 — Música ambiente ON por defecto, control SOUND flotante, autoplay con fallback al primer gesto y ducking durante reels.

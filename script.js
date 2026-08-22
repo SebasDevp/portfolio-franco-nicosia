@@ -1682,162 +1682,147 @@ runWhenIdle(()=>reelDeviceVideos.forEach(video=>warmReelMedia(video,{aggressive:
   };
 })();
 
-/* V31 note: próxima integración de audio (aún desactivada):
-   https://turuleka.com/wp-content/uploads/2026/08/Ambient-electronic-loop-licencia-libre-uso.mp3
-*/
 
 
 /* =========================================================
-   V32 — AMBIENT BACKGROUND MUSIC
-   - Audio remoto, reproducción persistente entre escenas.
-   - Intenta autoplay; si el navegador lo bloquea, arranca
-     con la primera interacción.
-   - Botón flotante para apagar/encender con memoria local.
+   V33 — AUDIO AMBIENTE / SOUND ON POR DEFECTO
 ========================================================= */
-(function initAmbientBackgroundMusic(){
-  const AUDIO_SRC='https://turuleka.com/wp-content/uploads/2026/08/Ambient-electronic-loop-licencia-libre-uso.mp3';
-  const STORAGE_KEY='francoPortfolioMusicPref';
-  const state={
-    prefersOff: localStorage.getItem(STORAGE_KEY)==='off',
-    awaitingGesture:false,
-    fadeFrame:0,
-    targetVolume: lowPowerMode ? .18 : .24,
-    currentVolume:0,
-    started:false
-  };
+(function initPortfolioSound(){
+  const audio=document.getElementById('ambientMusic');
+  const control=document.getElementById('soundControl');
+  const stateLabel=document.getElementById('soundControlState');
+  if(!audio||!control||!stateLabel)return;
 
-  const audio=document.createElement('audio');
-  audio.id='ambientMusic';
-  audio.src=AUDIO_SRC;
+  const SOUND_VOLUME=mobileMode ? .20 : .24;
+  const DUCK_VOLUME=.035;
+  let soundWanted=true;          // Cada carga nueva inicia con intención ON.
+  let unlocked=false;
+  let fadeRaf=0;
+  let retryTimer=0;
+  let ducked=false;
+
+  audio.muted=false;
+  audio.defaultMuted=false;
+  audio.volume=0;
   audio.loop=true;
+  audio.autoplay=true;
   audio.preload='auto';
   audio.playsInline=true;
-  audio.setAttribute('webkit-playsinline','');
-  audio.crossOrigin='anonymous';
-  audio.volume=0;
-  document.body.appendChild(audio);
 
-  const button=document.createElement('button');
-  button.type='button';
-  button.className='music-toggle magnetic';
-  button.id='musicToggle';
-  button.setAttribute('aria-label','Activar o desactivar música');
-  button.innerHTML=`<span class="music-toggle__eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="music-toggle__text"><strong class="music-toggle__label">SOUND</strong><small class="music-toggle__state">OFF</small></span>`;
-  document.body.appendChild(button);
-  const stateLabel=button.querySelector('.music-toggle__state');
-
-  function cancelFade(){ if(state.fadeFrame) cancelAnimationFrame(state.fadeFrame); state.fadeFrame=0; }
-  function setUi(mode){
-    button.classList.toggle('is-playing', mode==='playing');
-    button.classList.toggle('is-muted', mode==='muted');
-    button.classList.toggle('is-starting', mode==='awaiting' || mode==='starting');
-    document.body.classList.toggle('music-awaiting-gesture', mode==='awaiting');
-    if(mode==='playing') stateLabel.textContent='ON';
-    else if(mode==='awaiting') stateLabel.textContent='READY';
-    else if(mode==='starting') stateLabel.textContent='START';
-    else stateLabel.textContent='OFF';
-    button.setAttribute('aria-pressed', String(mode==='playing'));
-  }
-  function fadeVolume(target,{pauseOnEnd=false,duration=900}={}){
+  const clamp=value=>Math.max(0,Math.min(1,value));
+  function cancelFade(){if(fadeRaf)cancelAnimationFrame(fadeRaf);fadeRaf=0}
+  function fadeTo(target,duration=760,onDone){
     cancelFade();
-    const start=performance.now();
-    const initial=Number.isFinite(audio.volume)?audio.volume:0;
-    const delta=target-initial;
-    if(Math.abs(delta)<0.005){
-      audio.volume=Math.max(0,Math.min(1,target));
-      state.currentVolume=audio.volume;
-      if(pauseOnEnd&&target<=0.001) audio.pause();
-      return;
-    }
-    const tick=(now)=>{
-      const t=Math.min(1,(now-start)/duration);
-      const eased=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
-      audio.volume=Math.max(0,Math.min(1,initial+delta*eased));
-      state.currentVolume=audio.volume;
-      if(t<1) state.fadeFrame=requestAnimationFrame(tick);
-      else{ state.fadeFrame=0; if(pauseOnEnd&&target<=0.001) audio.pause(); }
+    target=clamp(target);
+    const from=Number.isFinite(audio.volume)?audio.volume:0;
+    const started=performance.now();
+    const tick=now=>{
+      const p=Math.min(1,(now-started)/Math.max(1,duration));
+      const eased=1-Math.pow(1-p,3);
+      audio.volume=clamp(from+(target-from)*eased);
+      if(p<1)fadeRaf=requestAnimationFrame(tick);
+      else{fadeRaf=0;onDone?.()}
     };
-    state.fadeFrame=requestAnimationFrame(tick);
+    fadeRaf=requestAnimationFrame(tick);
   }
-  async function playMusic({fromInteraction=false}={}){
-    if(state.prefersOff){ setUi('muted'); return false; }
+  function renderSoundUI(){
+    const actuallyPlaying=!audio.paused&&!audio.ended&&audio.readyState>=2;
+    control.classList.toggle('is-off',!soundWanted);
+    control.classList.toggle('is-on',soundWanted);
+    control.classList.toggle('is-waiting',soundWanted&&!actuallyPlaying);
+    control.setAttribute('aria-pressed',String(soundWanted));
+    control.setAttribute('aria-label',soundWanted?'Apagar música de fondo':'Activar música de fondo');
+    // La intención es ON desde el inicio. No mostramos READY/OFF cuando
+    // el navegador simplemente está esperando el primer gesto permitido.
+    stateLabel.textContent=soundWanted?'ON':'OFF';
+  }
+  function desiredVolume(){return ducked?DUCK_VOLUME:SOUND_VOLUME}
+  async function startSound({gesture=false}={}){
+    if(!soundWanted)return false;
+    window.clearTimeout(retryTimer);
     try{
-      if(audio.paused){
-        setUi(fromInteraction?'starting':'awaiting');
-        await audio.play();
-      }
-      state.started=true;
-      fadeVolume(state.targetVolume,{duration:1100});
-      setUi('playing');
+      audio.muted=false;
+      const promise=audio.play();
+      if(promise&&typeof promise.then==='function')await promise;
+      unlocked=true;
+      fadeTo(desiredVolume(),gesture?620:1100);
+      renderSoundUI();
       return true;
     }catch(error){
-      state.awaitingGesture=true;
-      setUi('awaiting');
+      // Autoplay audible puede ser bloqueado por el navegador. El primer
+      // pointer/touch/key en cualquier parte vuelve a ejecutar play().
+      renderSoundUI();
       return false;
     }
   }
-  function pauseMusic(){
-    state.awaitingGesture=false;
-    setUi('muted');
-    fadeVolume(0,{duration:460,pauseOnEnd:true});
+  function stopSound(){
+    soundWanted=false;
+    ducked=false;
+    renderSoundUI();
+    fadeTo(0,360,()=>audio.pause());
   }
-  function rememberPreference(isOff){
-    state.prefersOff=!!isOff;
-    localStorage.setItem(STORAGE_KEY,isOff?'off':'on');
+  async function turnSoundOn(){
+    soundWanted=true;
+    renderSoundUI();
+    await startSound({gesture:true});
   }
-  async function toggleMusic(event){
-    event?.preventDefault?.();
-    event?.stopPropagation?.();
-    if(!audio.paused && audio.currentTime>0){ rememberPreference(true); pauseMusic(); return; }
-    rememberPreference(false);
-    await playMusic({fromInteraction:true});
-  }
-
-  button.addEventListener('click',toggleMusic);
-
-  const onFirstGesture=async()=>{
-    if(state.prefersOff || !audio.paused) return cleanupFirstGesture();
-    const ok=await playMusic({fromInteraction:true});
-    if(ok) cleanupFirstGesture();
-  };
-  const gestureOpts={passive:true};
-  function cleanupFirstGesture(){
-    window.removeEventListener('pointerdown',onFirstGesture,gestureOpts);
-    window.removeEventListener('touchstart',onFirstGesture,gestureOpts);
-    window.removeEventListener('keydown',onFirstGesture,gestureOpts);
-    document.body.classList.remove('music-awaiting-gesture');
-  }
-  window.addEventListener('pointerdown',onFirstGesture,gestureOpts);
-  window.addEventListener('touchstart',onFirstGesture,gestureOpts);
-  window.addEventListener('keydown',onFirstGesture,gestureOpts);
-
-  audio.addEventListener('playing',()=>setUi('playing'));
-  audio.addEventListener('pause',()=>{ if(state.prefersOff || audio.volume<0.02) setUi('muted'); });
-  audio.addEventListener('ended',()=>{ audio.currentTime=0; playMusic(); });
-  audio.addEventListener('error',()=>{ setUi('muted'); console.warn('No se pudo cargar el audio ambiente.'); });
-
-  document.addEventListener('visibilitychange',()=>{
-    if(document.hidden) return;
-    if(!state.prefersOff && state.started && audio.paused){
-      playMusic();
-    }
+  control.addEventListener('click',event=>{
+    event.preventDefault();
+    event.stopPropagation();
+    soundWanted?stopSound():turnSoundOn();
   });
 
-  // Recalibra el volumen según el dispositivo.
-  const mqReduced=window.matchMedia('(prefers-reduced-motion: reduce)');
-  const mqNarrow=window.matchMedia('(max-width: 760px)');
-  function recalcVolume(){
-    state.targetVolume=(mqReduced.matches?.valueOf?.() ? 0.16 : (mqNarrow.matches ? 0.20 : (lowPowerMode ? 0.18 : 0.24)));
-    if(!audio.paused) fadeVolume(state.targetVolume,{duration:320});
-  }
-  if(mqReduced.addEventListener) mqReduced.addEventListener('change',recalcVolume);
-  if(mqNarrow.addEventListener) mqNarrow.addEventListener('change',recalcVolume);
-  window.addEventListener('resize',()=>{ window.clearTimeout(initAmbientBackgroundMusic._resizeTimer); initAmbientBackgroundMusic._resizeTimer=window.setTimeout(recalcVolume,140); },{passive:true});
+  // La primera interacción en CUALQUIER lugar libera el audio en Chrome,
+  // Safari y navegadores móviles que bloquean autoplay audible.
+  const unlockFromGesture=()=>{
+    if(!soundWanted||(!audio.paused&&unlocked))return;
+    startSound({gesture:true});
+  };
+  window.addEventListener('pointerdown',unlockFromGesture,{capture:true,passive:true});
+  window.addEventListener('touchstart',unlockFromGesture,{capture:true,passive:true});
+  window.addEventListener('keydown',unlockFromGesture,{capture:true,passive:true});
+  window.addEventListener('click',unlockFromGesture,{capture:true,passive:true});
 
-  // Primer intento automático: en desktop suele iniciar; en mobile queda listo para el primer toque.
-  if(state.prefersOff){ setUi('muted'); }
-  else {
-    setUi('starting');
-    window.setTimeout(()=>playMusic({fromInteraction:false}),360);
+  // Intentos tempranos: funcionan automáticamente cuando el navegador ya
+  // autoriza sonido para el sitio. Si no, quedan listos para el primer gesto.
+  renderSoundUI();
+  startSound();
+  retryTimer=window.setTimeout(()=>{if(soundWanted&&audio.paused)startSound()},500);
+  window.addEventListener('pageshow',()=>{if(soundWanted&&audio.paused)startSound()},{passive:true});
+
+  audio.addEventListener('playing',()=>{
+    unlocked=true;
+    fadeTo(desiredVolume(),audio.volume<.02?850:260);
+    renderSoundUI();
+  });
+  audio.addEventListener('pause',renderSoundUI);
+  audio.addEventListener('canplay',()=>{if(soundWanted&&audio.paused)startSound()},{once:true});
+  audio.addEventListener('error',()=>{
+    console.warn('No se pudo cargar la música ambiente desde el servidor remoto.');
+    renderSoundUI();
+  });
+
+  // Si un reel reproduce su propio audio, la música ambiente baja de nivel
+  // automáticamente y vuelve con un fade al cerrar/pausar el reel.
+  if(typeof reelViewerVideo!=='undefined'&&reelViewerVideo){
+    const duck=()=>{
+      if(!soundWanted||audio.paused)return;
+      ducked=true;
+      fadeTo(DUCK_VOLUME,260);
+    };
+    const restore=()=>{
+      if(!soundWanted)return;
+      ducked=false;
+      if(!audio.paused)fadeTo(SOUND_VOLUME,520);
+    };
+    reelViewerVideo.addEventListener('playing',duck);
+    reelViewerVideo.addEventListener('pause',restore);
+    reelViewerVideo.addEventListener('ended',restore);
+    reelViewerVideo.addEventListener('error',restore);
   }
+
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden)return;
+    if(soundWanted&&audio.paused)startSound();
+  });
 })();
