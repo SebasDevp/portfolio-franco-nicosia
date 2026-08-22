@@ -10,17 +10,32 @@ const coarsePointerMedia = window.matchMedia('(pointer: coarse)');
 const mobileMode = mobileMedia.matches || (coarsePointerMedia.matches && window.innerWidth < 1100);
 if(mobileMode) document.body.classList.add('mobile-experience');
 if(lowPowerMode) document.body.classList.add('low-power-experience');
+const cssPixelCount = () => Math.max(1, window.innerWidth * window.innerHeight);
+const nativePixelLoad = () => cssPixelCount() * Math.pow(Math.min(window.devicePixelRatio || 1, 2), 2);
+const ultraHiResDesktop = !mobileMode && (window.innerWidth >= 2800 || window.innerHeight >= 1700 || nativePixelLoad() >= 6500000);
+if(ultraHiResDesktop) document.body.classList.add('ultra-hires-desktop');
+
+/* V35: presupuesto real de píxeles, en vez de renderizar casi todo el 4K nativo.
+   El HTML/CSS sigue totalmente nítido; solo el canvas 3D usa resolución adaptativa. */
 const getRenderDPR = () => {
-  const dpr=window.devicePixelRatio||1;
-  if(mobileMode) return Math.min(dpr, lowPowerMode ? .86 : .96);
-  // En pantallas grandes el canvas ocupa toda la ventana. Un DPR alto multiplica
-  // brutalmente los píxeles a renderizar sin aportar una diferencia visible real.
-  const pixelLoad=window.innerWidth*window.innerHeight*Math.min(dpr,2)**2;
-  const cap=lowPowerMode ? 1.0 : (pixelLoad>7000000 ? .95 : pixelLoad>4500000 ? 1.02 : window.innerWidth>1600 ? 1.08 : 1.14);
-  return Math.min(dpr,cap);
+  const dpr = window.devicePixelRatio || 1;
+  if(mobileMode) return Math.min(dpr, lowPowerMode ? .84 : .96);
+
+  const cssPixels = cssPixelCount();
+  let pixelBudget;
+  if(lowPowerMode) pixelBudget = 2200000;
+  else if(cssPixels >= 7000000) pixelBudget = 3100000;   // 4K real
+  else if(cssPixels >= 3500000) pixelBudget = 3400000;  // 1440p / 4K con scaling
+  else pixelBudget = 4200000;                            // 1080p y menores
+
+  const budgetDpr = Math.sqrt(pixelBudget / cssPixels);
+  const floor = ultraHiResDesktop ? .58 : .72;
+  return Math.min(dpr, Math.max(floor, budgetDpr));
 };
-const highPixelCost = () => (window.innerWidth*window.innerHeight*(window.devicePixelRatio||1)**2)>6500000;
-const landingTargetFps = () => lowPowerMode ? 30 : (mobileMode ? 40 : (highPixelCost()?42:50));
+const highPixelCost = () => ultraHiResDesktop || nativePixelLoad() > 6500000;
+/* 42 FPS producía judder visible en monitores de 60/120 Hz. Desktop apunta a 60
+   y compensamos el coste bajando resolución interna, no la cadencia visual. */
+const landingTargetFps = () => lowPowerMode ? 36 : (mobileMode ? 45 : 60);
 
 /* La experiencia móvil tiene un orden propio. Si se cruza el breakpoint,
    recargamos una sola vez para no mezclar estados de navegación. */
@@ -374,14 +389,14 @@ let landingBaseX=-3.50,landingBaseY=.04,landingBaseScale=1.18;
 function initLandingThree(){
   if(!THREE){artifactFallback.classList.add('visible');return;}
   try{
-    landingRenderer=new THREE.WebGLRenderer({canvas:landingThree,antialias:true,alpha:true,powerPreference:'high-performance'});
+    landingRenderer=new THREE.WebGLRenderer({canvas:landingThree,antialias:!ultraHiResDesktop,alpha:true,powerPreference:'high-performance',precision:ultraHiResDesktop?'mediump':'highp'});
     landingRenderer.setPixelRatio(getRenderDPR());landingRenderer.setClearColor(0x000000,0);landingRenderer.outputColorSpace=THREE.SRGBColorSpace;landingRenderer.toneMapping=THREE.ACESFilmicToneMapping;landingRenderer.toneMappingExposure=1.05;
     landingScene=new THREE.Scene();landingCamera=new THREE.PerspectiveCamera(42,1,.1,100);landingCamera.position.z=7.25;
     landingScene.add(new THREE.AmbientLight(0xffffff,2.15));
     const key=new THREE.DirectionalLight(0xffffff,4.2);key.position.set(-4,5,6);landingScene.add(key);
     const green=new THREE.PointLight(0x69ff83,19,13,2);green.position.set(3,-1,4);landingScene.add(green);
     const soft=new THREE.PointLight(0xdfffe4,13,12,2);soft.position.set(-3,2,4);landingScene.add(soft);
-    const geometry=new THREE.TorusKnotGeometry(.90,.25,mobileMode?(lowPowerMode?96:128):(lowPowerMode?132:168),mobileMode?(lowPowerMode?18:22):(lowPowerMode?24:30),2,3);
+    const geometry=new THREE.TorusKnotGeometry(.90,.25,mobileMode?(lowPowerMode?96:128):(ultraHiResDesktop?144:(lowPowerMode?132:168)),mobileMode?(lowPowerMode?18:22):(ultraHiResDesktop?24:(lowPowerMode?24:30)),2,3);
     const material=new THREE.MeshPhysicalMaterial({color:0x9effa8,roughness:.065,metalness:.02,transmission:.48,transparent:true,opacity:.91,thickness:.95,ior:1.4,clearcoat:1,clearcoatRoughness:.04,iridescence:.10,side:THREE.DoubleSide});
     landingKnot=new THREE.Mesh(geometry,material);landingKnot.position.set(landingBaseX,landingBaseY,1);landingScene.add(landingKnot);
     landingWire=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial({color:0x218a43,wireframe:true,transparent:true,opacity:.052,depthWrite:false}));landingWire.position.copy(landingKnot.position);landingScene.add(landingWire);
@@ -415,7 +430,7 @@ landingSceneEl.addEventListener('touchend',()=>{
 },{passive:true});
 function resizeLandingThree(){
   if(!landingRenderer||!landingCamera)return;
-  landingRenderer.setPixelRatio(getRenderDPR());landingRenderer.setSize(innerWidth,innerHeight,false);landingCamera.aspect=innerWidth/innerHeight;landingCamera.updateProjectionMatrix();
+  landingAdaptiveScale=1;landingPerfSamples=0;landingPerfTotal=0;landingPerfLast=0;landingRenderer.setPixelRatio(getRenderDPR());landingRenderer.setSize(innerWidth,innerHeight,false);landingCamera.aspect=innerWidth/innerHeight;landingCamera.updateProjectionMatrix();
   // V9: smaller object in the left negative space, with only a slight overlap over the name.
   // V11: with the side card removed, the hero owns the full viewport.
   // The artifact moves closer to the name and overlaps it only slightly.
@@ -434,6 +449,24 @@ function resizeLandingThree(){
   landingKnot.position.set(landingBaseX,landingBaseY,1);landingWire.position.copy(landingKnot.position);landingHaloA.position.set(landingBaseX,landingBaseY,.35);landingHaloB.position.set(landingBaseX,landingBaseY,.18);
 }
 let landingLastFrameAt=0;
+let landingPerfSamples=0, landingPerfTotal=0, landingPerfLast=0, landingAdaptiveScale=1;
+function observeLandingPerformance(now){
+  if(mobileMode || lowPowerMode || !landingRenderer || !now) return;
+  if(landingPerfLast){
+    const dt=now-landingPerfLast;
+    if(dt>0 && dt<120){landingPerfTotal+=dt;landingPerfSamples++}
+  }
+  landingPerfLast=now;
+  if(landingPerfSamples>=90){
+    const avg=landingPerfTotal/landingPerfSamples;
+    if(avg>20.5 && landingAdaptiveScale>.82){
+      landingAdaptiveScale=Math.max(.82,landingAdaptiveScale-.08);
+      landingRenderer.setPixelRatio(getRenderDPR()*landingAdaptiveScale);
+      landingRenderer.setSize(innerWidth,innerHeight,false);
+    }
+    landingPerfSamples=0;landingPerfTotal=0;
+  }
+}
 function renderLandingThree(frameNow=0){
   if(document.hidden||!landingRenderer||!landingScene||!landingCamera||!landingThreeActive){
     window.setTimeout(()=>requestAnimationFrame(renderLandingThree),160);
@@ -443,6 +476,7 @@ function renderLandingThree(frameNow=0){
   const minFrameMs=1000/targetFps;
   if(frameNow&&frameNow-landingLastFrameAt<minFrameMs){requestAnimationFrame(renderLandingThree);return;}
   landingLastFrameAt=frameNow||performance.now();
+  observeLandingPerformance(landingLastFrameAt);
   const t=landingClock.getElapsedTime();landingPointer.smoothX+=(landingPointer.x-landingPointer.smoothX)*.045;landingPointer.smoothY+=(landingPointer.y-landingPointer.smoothY)*.045;
   landingKnot.rotation.x=t*.24-landingPointer.smoothY*.14;landingKnot.rotation.y=t*.37+landingPointer.smoothX*.21;landingKnot.rotation.z=Math.sin(t*.25)*.10;
   landingKnot.position.x=landingBaseX+landingPointer.smoothX*.045;landingKnot.position.y=landingBaseY+landingPointer.smoothY*.035;landingWire.rotation.copy(landingKnot.rotation);landingWire.position.copy(landingKnot.position);
@@ -718,7 +752,7 @@ landingSceneEl.addEventListener('pointerleave',()=>{
   requestAnimationFrame(reactiveLandingColorLoop);
 })();
 
-console.info('[Portfolio] build V34 performance-balance');
+console.info('[Portfolio] build V35 4k-adaptive');
 
 async function boot(){try{await document.fonts.ready}catch(error){console.warn('No se pudieron esperar las fuentes.',error)}configureMobileExperience();initLandingThree();updateInterface();landingNameWrap.classList.add('is-ready');revealSceneContent(scenes[currentScene]);if(mobileMode&&currentScene===1)scheduleIdleSphereTease(1050)}
 boot();

@@ -4014,3 +4014,36 @@ body.reel-viewer-open .sound-control{opacity:.52}
   .work-ambient,.reels-ambient{filter:blur(120px)}
 }
 body.page-is-hidden *{animation-play-state:paused!important}
+
+
+/* =========================================================
+   V35 — 4K ADAPTIVE / SMOOTH 60 FPS
+   En ultra alta resolución prioriza cadencia estable. El texto y UI siguen
+   nativos; sólo se simplifican efectos de composición casi imperceptibles.
+========================================================= */
+body.ultra-hires-desktop .global-noise{opacity:.018}
+body.ultra-hires-desktop .landing-three{filter:none}
+body.ultra-hires-desktop .landing-name{filter:none}
+body.ultra-hires-desktop .direction-arrow,
+body.ultra-hires-desktop .route span,
+body.ultra-hires-desktop .sound-control,
+body.ultra-hires-desktop .music-toggle,
+body.ultra-hires-desktop .sphere-card,
+body.ultra-hires-desktop .editing-timeline{
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+body.ultra-hires-desktop .direction-arrow{background:rgba(245,248,244,.32)}
+body.ultra-hires-desktop:not(.light-interface) .direction-arrow{background:rgba(4,6,5,.72)}
+body.ultra-hires-desktop .route span{background:rgba(238,242,237,.54)}
+body.ultra-hires-desktop:not(.light-interface) .route span{background:rgba(4,6,5,.76)}
+body.ultra-hires-desktop .about-ambient,
+body.ultra-hires-desktop .work-ambient,
+body.ultra-hires-desktop .reels-ambient{filter:blur(72px)}
+body.ultra-hires-desktop .mouse-glow{width:480px;height:480px}
+body.ultra-hires-desktop .transition-beam,
+body.ultra-hires-desktop .transition-flare{filter:none!important}
+@media (min-width:2800px){
+  .scene{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+  .landing-scanline::after{animation-duration:10s}
+}
