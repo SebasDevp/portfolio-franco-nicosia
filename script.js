@@ -4,38 +4,48 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 const deviceMemory = Number(navigator.deviceMemory || 8);
 const cpuCores = Number(navigator.hardwareConcurrency || 8);
 const saveDataMode = Boolean(navigator.connection?.saveData);
-const lowPowerMode = saveDataMode || deviceMemory <= 4 || cpuCores <= 4;
 const mobileMedia = window.matchMedia('(max-width:900px)');
 const coarsePointerMedia = window.matchMedia('(pointer: coarse)');
 const mobileMode = mobileMedia.matches || (coarsePointerMedia.matches && window.innerWidth < 1100);
+const cssPixelCount = () => Math.max(1, window.innerWidth * window.innerHeight);
+const nativePixelLoad = () => cssPixelCount() * Math.pow(Math.min(window.devicePixelRatio || 1, 3), 2);
+/* V36: además del hardware, contemplamos la presión real de píxeles en móviles
+   con DPR alto. Así un teléfono modesto no intenta renderizar como uno premium. */
+const mobilePixelPressure = mobileMode && nativePixelLoad() >= 2600000;
+const lowPowerMode = saveDataMode || deviceMemory <= 4 || cpuCores <= 4 || mobilePixelPressure;
+const ultraHiResDesktop = !mobileMode && (window.innerWidth >= 2800 || window.innerHeight >= 1700 || nativePixelLoad() >= 6500000);
 if(mobileMode) document.body.classList.add('mobile-experience');
 if(lowPowerMode) document.body.classList.add('low-power-experience');
-const cssPixelCount = () => Math.max(1, window.innerWidth * window.innerHeight);
-const nativePixelLoad = () => cssPixelCount() * Math.pow(Math.min(window.devicePixelRatio || 1, 2), 2);
-const ultraHiResDesktop = !mobileMode && (window.innerWidth >= 2800 || window.innerHeight >= 1700 || nativePixelLoad() >= 6500000);
 if(ultraHiResDesktop) document.body.classList.add('ultra-hires-desktop');
 
 /* V35: presupuesto real de píxeles, en vez de renderizar casi todo el 4K nativo.
    El HTML/CSS sigue totalmente nítido; solo el canvas 3D usa resolución adaptativa. */
 const getRenderDPR = () => {
   const dpr = window.devicePixelRatio || 1;
-  if(mobileMode) return Math.min(dpr, lowPowerMode ? .84 : .96);
-
   const cssPixels = cssPixelCount();
+
+  if(mobileMode){
+    /* Presupuesto por píxeles: conserva definición en móviles normales y reduce
+       sólo el canvas 3D en DPR 2.5/3+ o hardware limitado. */
+    const budget = lowPowerMode ? 780000 : 1450000;
+    const budgetDpr = Math.sqrt(budget / cssPixels);
+    return Math.min(dpr, Math.max(lowPowerMode ? .62 : .78, budgetDpr));
+  }
+
   let pixelBudget;
-  if(lowPowerMode) pixelBudget = 2200000;
-  else if(cssPixels >= 7000000) pixelBudget = 3100000;   // 4K real
-  else if(cssPixels >= 3500000) pixelBudget = 3400000;  // 1440p / 4K con scaling
-  else pixelBudget = 4200000;                            // 1080p y menores
+  if(lowPowerMode) pixelBudget = 2100000;
+  else if(cssPixels >= 7000000) pixelBudget = 3000000;
+  else if(cssPixels >= 3500000) pixelBudget = 3350000;
+  else pixelBudget = 4200000;
 
   const budgetDpr = Math.sqrt(pixelBudget / cssPixels);
-  const floor = ultraHiResDesktop ? .58 : .72;
+  const floor = ultraHiResDesktop ? .56 : .72;
   return Math.min(dpr, Math.max(floor, budgetDpr));
 };
 const highPixelCost = () => ultraHiResDesktop || nativePixelLoad() > 6500000;
-/* 42 FPS producía judder visible en monitores de 60/120 Hz. Desktop apunta a 60
-   y compensamos el coste bajando resolución interna, no la cadencia visual. */
-const landingTargetFps = () => lowPowerMode ? 36 : (mobileMode ? 45 : 60);
+/* Usamos cadencias divisibles por 60 Hz: 60 en equipos normales y 30 en modo
+   ahorro. Es visualmente más estable que 36/42/45 FPS en paneles de 60/120 Hz. */
+const landingTargetFps = () => lowPowerMode ? 30 : 60;
 
 /* La experiencia móvil tiene un orden propio. Si se cruza el breakpoint,
    recargamos una sola vez para no mezclar estados de navegación. */
@@ -157,6 +167,8 @@ function updateInterface(){
   const light=currentScene===0;
   document.body.classList.toggle('light-interface',light);
   document.body.dataset.scene=String(currentScene);
+  const themeMeta=document.querySelector('meta[name="theme-color"]');
+  if(themeMeta) themeMeta.setAttribute('content',light?'#ffffff':'#040605');
   landingThreeActive=light;
 }
 
@@ -459,8 +471,8 @@ function observeLandingPerformance(now){
   landingPerfLast=now;
   if(landingPerfSamples>=90){
     const avg=landingPerfTotal/landingPerfSamples;
-    if(avg>20.5 && landingAdaptiveScale>.82){
-      landingAdaptiveScale=Math.max(.82,landingAdaptiveScale-.08);
+    if(avg>18.9 && landingAdaptiveScale>.78){
+      landingAdaptiveScale=Math.max(.78,landingAdaptiveScale-.07);
       landingRenderer.setPixelRatio(getRenderDPR()*landingAdaptiveScale);
       landingRenderer.setSize(innerWidth,innerHeight,false);
     }
@@ -497,7 +509,7 @@ const whatsappUrl='https://wa.me/5493424281088?text=Hola%20Franco%2C%20vi%20tu%2
 
 function resizeSphereCanvas(){
   const rect=photoSphere.getBoundingClientRect();
-  sphereWidth=rect.width;sphereHeight=rect.height;sphereDPR=Math.min(devicePixelRatio||1,mobileMode?(lowPowerMode?.90:1):(lowPowerMode?1:1.18));
+  sphereWidth=rect.width;sphereHeight=rect.height;sphereDPR=Math.min(devicePixelRatio||1,mobileMode?(lowPowerMode?.78:.96):(lowPowerMode?.92:1.12));
   microbotCanvas.width=Math.round(sphereWidth*sphereDPR);microbotCanvas.height=Math.round(sphereHeight*sphereDPR);
   microbotCanvas.style.width=`${sphereWidth}px`;microbotCanvas.style.height=`${sphereHeight}px`;
   microCtx.setTransform(sphereDPR,0,0,sphereDPR,0,0);
@@ -752,7 +764,7 @@ landingSceneEl.addEventListener('pointerleave',()=>{
   requestAnimationFrame(reactiveLandingColorLoop);
 })();
 
-console.info('[Portfolio] build V35 4k-adaptive');
+console.info('[Portfolio] build V36 final-adaptive');
 
 async function boot(){try{await document.fonts.ready}catch(error){console.warn('No se pudieron esperar las fuentes.',error)}configureMobileExperience();initLandingThree();updateInterface();landingNameWrap.classList.add('is-ready');revealSceneContent(scenes[currentScene]);if(mobileMode&&currentScene===1)scheduleIdleSphereTease(1050)}
 boot();

@@ -1,5 +1,5 @@
 :root{
-  --black:#040605;--black-soft:#080b09;--paper:#edf0eb;--white:#f5f7f4;
+  --black:#040605;--black-soft:#080b09;--paper:#ffffff;--white:#f5f7f4;
   --gray:#929a94;--green:#78ff7b;--green-bright:#67f979;--green-medium:#24a34d;
   --green-dark:#18743a;--green-deep:#0a3219;
   --name-fill:92%;--name-x:0px;--name-y:0px;--name-tilt-x:0deg;--name-tilt-y:0deg;--line-x:50%;
@@ -4047,3 +4047,50 @@ body.ultra-hires-desktop .transition-flare{filter:none!important}
   .scene{backface-visibility:hidden;-webkit-backface-visibility:hidden}
   .landing-scanline::after{animation-duration:10s}
 }
+
+
+/* =========================================================
+   V36 FINAL — COLOR CONSISTENCY + ADAPTIVE PERFORMANCE
+   El fondo de Inicio usa blanco sRGB real (#fff) en todos los breakpoints.
+   Se elimina el ruido oscuro sobre la interfaz clara, que era el principal
+   responsable de que algunos paneles mostrasen el fondo grisáceo.
+========================================================= */
+.scene-landing,
+body.light-interface .stage,
+body.light-interface{
+  background-color:#ffffff!important;
+}
+.scene-landing{background-image:none!important}
+/* El ruido negro global sobre #edf0eb hacía variar mucho el gris aparente
+   según densidad, escalado, HDR y contraste del monitor. En Inicio se apaga. */
+body.light-interface .global-noise{display:none!important;opacity:0!important}
+/* Mantenemos la atmósfera verde, pero ya no tiñe grandes superficies de blanco. */
+.scene-landing .landing-background-light{
+  background:radial-gradient(circle,rgba(94,255,123,.042),rgba(94,255,123,.014) 42%,transparent 68%)!important;
+  opacity:.72;
+}
+body.ultra-hires-desktop .scene-landing .landing-background-light{opacity:.58;filter:blur(28px)}
+body.low-power-experience .scene-landing .landing-background-light{opacity:.38;filter:blur(22px)}
+/* El Vegvísir conserva su sutileza sin transformar el blanco base en gris/verde. */
+.scene-landing .landing-sacred-grid{mix-blend-mode:multiply;opacity:.105}
+.scene-landing.name-active .landing-sacred-grid{opacity:.18}
+body.low-power-experience .scene-landing .landing-sacred-grid{opacity:.075}
+body.low-power-experience .scene-landing.name-active .landing-sacred-grid{opacity:.12}
+
+/* En móviles de menor potencia: menos composición GPU, misma jerarquía visual. */
+@media (max-width:900px){
+  body.mobile-experience .global-noise{opacity:.018}
+  body.mobile-experience.light-interface .global-noise{display:none!important}
+  body.mobile-experience .landing-three{filter:none!important}
+  body.mobile-experience .landing-name{filter:none!important}
+  body.mobile-experience .transition-beam,
+  body.mobile-experience .transition-flare{filter:none!important}
+}
+body.low-power-experience .mouse-glow{display:none!important}
+body.low-power-experience .landing-scanline::after{animation-duration:12s!important}
+body.low-power-experience .header-location i{animation-duration:3.4s!important}
+
+/* Aislamiento de composición para que una escena oculta no fuerce repaints. */
+.scene{content-visibility:auto;contain:layout paint style}
+.scene[style*="visibility: hidden"]{content-visibility:hidden}
+.landing-three,.photo-sphere,.reel-device{transform:translateZ(0);backface-visibility:hidden;-webkit-backface-visibility:hidden}
