@@ -3,14 +3,16 @@ const THREE = window.THREE || null;
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const deviceMemory = Number(navigator.deviceMemory || 8);
 const cpuCores = Number(navigator.hardwareConcurrency || 8);
-const lowPowerMode = deviceMemory <= 4 || cpuCores <= 4;
+const saveDataMode = Boolean(navigator.connection?.saveData);
+const lowPowerMode = saveDataMode || deviceMemory <= 4 || cpuCores <= 4;
 const mobileMedia = window.matchMedia('(max-width:900px)');
 const coarsePointerMedia = window.matchMedia('(pointer: coarse)');
 const mobileMode = mobileMedia.matches || (coarsePointerMedia.matches && window.innerWidth < 1100);
 if(mobileMode) document.body.classList.add('mobile-experience');
+if(lowPowerMode) document.body.classList.add('low-power-experience');
 const getRenderDPR = () => Math.min(
   window.devicePixelRatio || 1,
-  mobileMode ? 1.05 : (lowPowerMode ? 1.25 : (window.innerWidth < 900 ? 1.35 : 1.5))
+  mobileMode ? (lowPowerMode ? 0.92 : 1.0) : (lowPowerMode ? 1.18 : (window.innerWidth < 1100 ? 1.28 : 1.45))
 );
 
 /* La experiencia móvil tiene un orden propio. Si se cruza el breakpoint,
@@ -23,6 +25,17 @@ const runWhenIdle = (callback, timeout=900) => {
   }
   return window.setTimeout(callback,Math.min(timeout,420));
 };
+
+/* V31 — viewport/performance guardrails */
+function syncViewportMetrics(){
+  const viewport=window.visualViewport;
+  const h=viewport?.height||window.innerHeight;
+  document.documentElement.style.setProperty('--app-height',`${Math.round(h)}px`);
+}
+syncViewportMetrics();
+window.visualViewport?.addEventListener('resize',syncViewportMetrics,{passive:true});
+window.addEventListener('orientationchange',()=>setTimeout(syncViewportMetrics,120),{passive:true});
+document.addEventListener('visibilitychange',()=>document.body.classList.toggle('page-is-hidden',document.hidden));
 
 if(gsap){
   gsap.config({force3D:true});
@@ -156,7 +169,7 @@ function transitionTo(target,direction){
   isTransitioning=true;playTransitionEffect(direction,oldIndex,target);
   const oldInner=oldScene.querySelector('.scene-inner'),newInner=newScene.querySelector('.scene-inner');
   gsap.killTweensOf([oldScene,newScene,oldInner,newInner]);
-  gsap.set(newScene,{visibility:'visible',autoAlpha:1,pointerEvents:'none',zIndex:4,xPercent:vector.x*103,yPercent:vector.y*103,scale:1.025,filter:'blur(5px)',force3D:true});
+  gsap.set(newScene,{visibility:'visible',autoAlpha:1,pointerEvents:'none',zIndex:4,xPercent:vector.x*103,yPercent:vector.y*103,scale:1.025,filter:mobileMode?'none':'blur(5px)',force3D:true});
   if(newInner)gsap.set(newInner,{x:vector.x*75,y:vector.y*75,scale:1.015});
   gsap.set(oldScene,{zIndex:3});
   const tl=gsap.timeline({onComplete(){
@@ -165,7 +178,7 @@ function transitionTo(target,direction){
     gsap.set(newScene,{pointerEvents:'auto',zIndex:3});
     isTransitioning=false;ignoreWheelUntil=performance.now()+(mobileMode?1050:300);
   }});
-  tl.to(oldScene,{xPercent:vector.x*(mobileMode?-14:-20),yPercent:vector.y*(mobileMode?-14:-20),scale:mobileMode?.975:.96,autoAlpha:.12,filter:mobileMode?'blur(2px)':'blur(4px)',force3D:true,duration:mobileMode?1.38:.96,ease:'power4.inOut'},0);
+  tl.to(oldScene,{xPercent:vector.x*(mobileMode?-14:-20),yPercent:vector.y*(mobileMode?-14:-20),scale:mobileMode?.975:.96,autoAlpha:.12,filter:mobileMode?'none':'blur(4px)',force3D:true,duration:mobileMode?1.38:.96,ease:'power4.inOut'},0);
   if(oldInner)tl.to(oldInner,{x:vector.x*(mobileMode?-24:-42),y:vector.y*(mobileMode?-24:-42),scale:mobileMode?.994:.985,force3D:true,duration:mobileMode?1.38:.96,ease:'power4.inOut'},0);
   tl.to(newScene,{xPercent:0,yPercent:0,scale:1,filter:'blur(0px)',force3D:true,duration:mobileMode?1.46:1.02,ease:'power4.inOut'},0);
   if(newInner)tl.to(newInner,{x:0,y:0,scale:1,force3D:true,duration:mobileMode?1.50:1.06,ease:'power4.out'},.03);
@@ -328,8 +341,12 @@ landingSceneEl.addEventListener('pointerleave',()=>{
   document.documentElement.style.setProperty('--line-x','50%');
   if(gsap)gsap.to(landingScanline,{autoAlpha:.30,duration:.5});
 });
-(function nameInteractionLoop(){
-  if(!document.hidden && currentScene===0){
+let nameLastFrameAt=0;
+(function nameInteractionLoop(frameNow=0){
+  const nameTargetFps=lowPowerMode?30:(mobileMode?45:60);
+  const nameCanDraw=!frameNow||frameNow-nameLastFrameAt>=1000/nameTargetFps;
+  if(!document.hidden && currentScene===0 && nameCanDraw){
+    nameLastFrameAt=frameNow||performance.now();
     nameCurrentFill+=(nameTargetFill-nameCurrentFill)*.075;
     nameCurrentX+=(nameTargetX-nameCurrentX)*.07;
     nameCurrentY+=(nameTargetY-nameCurrentY)*.07;
@@ -357,14 +374,14 @@ function initLandingThree(){
     const key=new THREE.DirectionalLight(0xffffff,4.2);key.position.set(-4,5,6);landingScene.add(key);
     const green=new THREE.PointLight(0x69ff83,19,13,2);green.position.set(3,-1,4);landingScene.add(green);
     const soft=new THREE.PointLight(0xdfffe4,13,12,2);soft.position.set(-3,2,4);landingScene.add(soft);
-    const geometry=new THREE.TorusKnotGeometry(.90,.25,mobileMode?170:(lowPowerMode?210:260),mobileMode?30:(lowPowerMode?38:48),2,3);
+    const geometry=new THREE.TorusKnotGeometry(.90,.25,mobileMode?(lowPowerMode?112:144):(lowPowerMode?190:238),mobileMode?(lowPowerMode?20:24):(lowPowerMode?34:44),2,3);
     const material=new THREE.MeshPhysicalMaterial({color:0x9effa8,roughness:.065,metalness:.02,transmission:.48,transparent:true,opacity:.91,thickness:.95,ior:1.4,clearcoat:1,clearcoatRoughness:.04,iridescence:.10,side:THREE.DoubleSide});
     landingKnot=new THREE.Mesh(geometry,material);landingKnot.position.set(landingBaseX,landingBaseY,1);landingScene.add(landingKnot);
     landingWire=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial({color:0x218a43,wireframe:true,transparent:true,opacity:.052,depthWrite:false}));landingWire.position.copy(landingKnot.position);landingScene.add(landingWire);
-    const haloGeometry=new THREE.TorusGeometry(1.34,.006,10,mobileMode?96:(lowPowerMode?120:160)),haloMaterial=new THREE.MeshBasicMaterial({color:0x208b42,transparent:true,opacity:.105});
+    const haloGeometry=new THREE.TorusGeometry(1.34,.006,8,mobileMode?(lowPowerMode?64:82):(lowPowerMode?104:138)),haloMaterial=new THREE.MeshBasicMaterial({color:0x208b42,transparent:true,opacity:.105});
     landingHaloA=new THREE.Mesh(haloGeometry,haloMaterial);landingHaloA.rotation.x=Math.PI*.64;landingHaloA.position.set(landingBaseX,landingBaseY,.35);landingScene.add(landingHaloA);
     landingHaloB=new THREE.Mesh(haloGeometry,haloMaterial.clone());landingHaloB.scale.setScalar(1.18);landingHaloB.rotation.y=Math.PI*.63;landingHaloB.material.opacity=.045;landingHaloB.position.set(landingBaseX,landingBaseY,.18);landingScene.add(landingHaloB);
-    const count=mobileMode?54:(lowPowerMode?72:100),positions=new Float32Array(count*3);for(let i=0;i<count;i++){positions[i*3]=(Math.random()-.5)*5;positions[i*3+1]=(Math.random()-.5)*3.2;positions[i*3+2]=.1+Math.random()*1.3}
+    const count=mobileMode?(lowPowerMode?34:46):(lowPowerMode?62:88),positions=new Float32Array(count*3);for(let i=0;i<count;i++){positions[i*3]=(Math.random()-.5)*5;positions[i*3+1]=(Math.random()-.5)*3.2;positions[i*3+2]=.1+Math.random()*1.3}
     const pGeo=new THREE.BufferGeometry();pGeo.setAttribute('position',new THREE.BufferAttribute(positions,3));landingPoints=new THREE.Points(pGeo,new THREE.PointsMaterial({color:0x208c43,size:.011,transparent:true,opacity:.20}));landingScene.add(landingPoints);
     landingClock=new THREE.Clock();resizeLandingThree();renderLandingThree();
   }catch(error){console.error('Three.js error:',error);artifactFallback.classList.add('visible')}
@@ -409,11 +426,16 @@ function resizeLandingThree(){
   landingKnot.scale.setScalar(scale);landingWire.scale.setScalar(scale*1.006);landingHaloA.scale.setScalar(scale*.92);landingHaloB.scale.setScalar(scale*1.02);
   landingKnot.position.set(landingBaseX,landingBaseY,1);landingWire.position.copy(landingKnot.position);landingHaloA.position.set(landingBaseX,landingBaseY,.35);landingHaloB.position.set(landingBaseX,landingBaseY,.18);
 }
-function renderLandingThree(){
+let landingLastFrameAt=0;
+function renderLandingThree(frameNow=0){
   if(document.hidden||!landingRenderer||!landingScene||!landingCamera||!landingThreeActive){
-    window.setTimeout(()=>requestAnimationFrame(renderLandingThree),140);
+    window.setTimeout(()=>requestAnimationFrame(renderLandingThree),160);
     return;
   }
+  const targetFps=lowPowerMode?30:(mobileMode?45:60);
+  const minFrameMs=1000/targetFps;
+  if(frameNow&&frameNow-landingLastFrameAt<minFrameMs){requestAnimationFrame(renderLandingThree);return;}
+  landingLastFrameAt=frameNow||performance.now();
   const t=landingClock.getElapsedTime();landingPointer.smoothX+=(landingPointer.x-landingPointer.smoothX)*.045;landingPointer.smoothY+=(landingPointer.y-landingPointer.smoothY)*.045;
   landingKnot.rotation.x=t*.24-landingPointer.smoothY*.14;landingKnot.rotation.y=t*.37+landingPointer.smoothX*.21;landingKnot.rotation.z=Math.sin(t*.25)*.10;
   landingKnot.position.x=landingBaseX+landingPointer.smoothX*.045;landingKnot.position.y=landingBaseY+landingPointer.smoothY*.035;landingWire.rotation.copy(landingKnot.rotation);landingWire.position.copy(landingKnot.position);
@@ -434,7 +456,7 @@ const whatsappUrl='https://wa.me/5493424281088?text=Hola%20Franco%2C%20vi%20tu%2
 
 function resizeSphereCanvas(){
   const rect=photoSphere.getBoundingClientRect();
-  sphereWidth=rect.width;sphereHeight=rect.height;sphereDPR=Math.min(devicePixelRatio||1,lowPowerMode?1.2:1.55);
+  sphereWidth=rect.width;sphereHeight=rect.height;sphereDPR=Math.min(devicePixelRatio||1,mobileMode?(lowPowerMode?1:1.12):(lowPowerMode?1.15:1.42));
   microbotCanvas.width=Math.round(sphereWidth*sphereDPR);microbotCanvas.height=Math.round(sphereHeight*sphereDPR);
   microbotCanvas.style.width=`${sphereWidth}px`;microbotCanvas.style.height=`${sphereHeight}px`;
   microCtx.setTransform(sphereDPR,0,0,sphereDPR,0,0);
@@ -1638,7 +1660,7 @@ runWhenIdle(()=>reelDeviceVideos.forEach(video=>warmReelMedia(video,{aggressive:
       if(nearest!==activeCard) setActiveCard(nearest,{center:false});
     });
     clearTimeout(settleTimer);
-    settleTimer=setTimeout(()=>centerCard(activeCard,{smooth:true}),120);
+    settleTimer=setTimeout(()=>centerCard(activeCard,{smooth:!lowPowerMode}),lowPowerMode?180:130);
   },{passive:true});
 
   // Evita que un swipe horizontal dentro del deck intente cambiar de escena.
@@ -1658,4 +1680,164 @@ runWhenIdle(()=>reelDeviceVideos.forEach(video=>warmReelMedia(video,{aggressive:
       requestAnimationFrame(()=>centerCard(activeCard,{smooth:false}));
     }
   };
+})();
+
+/* V31 note: próxima integración de audio (aún desactivada):
+   https://turuleka.com/wp-content/uploads/2026/08/Ambient-electronic-loop-licencia-libre-uso.mp3
+*/
+
+
+/* =========================================================
+   V32 — AMBIENT BACKGROUND MUSIC
+   - Audio remoto, reproducción persistente entre escenas.
+   - Intenta autoplay; si el navegador lo bloquea, arranca
+     con la primera interacción.
+   - Botón flotante para apagar/encender con memoria local.
+========================================================= */
+(function initAmbientBackgroundMusic(){
+  const AUDIO_SRC='https://turuleka.com/wp-content/uploads/2026/08/Ambient-electronic-loop-licencia-libre-uso.mp3';
+  const STORAGE_KEY='francoPortfolioMusicPref';
+  const state={
+    prefersOff: localStorage.getItem(STORAGE_KEY)==='off',
+    awaitingGesture:false,
+    fadeFrame:0,
+    targetVolume: lowPowerMode ? .18 : .24,
+    currentVolume:0,
+    started:false
+  };
+
+  const audio=document.createElement('audio');
+  audio.id='ambientMusic';
+  audio.src=AUDIO_SRC;
+  audio.loop=true;
+  audio.preload='auto';
+  audio.playsInline=true;
+  audio.setAttribute('webkit-playsinline','');
+  audio.crossOrigin='anonymous';
+  audio.volume=0;
+  document.body.appendChild(audio);
+
+  const button=document.createElement('button');
+  button.type='button';
+  button.className='music-toggle magnetic';
+  button.id='musicToggle';
+  button.setAttribute('aria-label','Activar o desactivar música');
+  button.innerHTML=`<span class="music-toggle__eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="music-toggle__text"><strong class="music-toggle__label">SOUND</strong><small class="music-toggle__state">OFF</small></span>`;
+  document.body.appendChild(button);
+  const stateLabel=button.querySelector('.music-toggle__state');
+
+  function cancelFade(){ if(state.fadeFrame) cancelAnimationFrame(state.fadeFrame); state.fadeFrame=0; }
+  function setUi(mode){
+    button.classList.toggle('is-playing', mode==='playing');
+    button.classList.toggle('is-muted', mode==='muted');
+    button.classList.toggle('is-starting', mode==='awaiting' || mode==='starting');
+    document.body.classList.toggle('music-awaiting-gesture', mode==='awaiting');
+    if(mode==='playing') stateLabel.textContent='ON';
+    else if(mode==='awaiting') stateLabel.textContent='READY';
+    else if(mode==='starting') stateLabel.textContent='START';
+    else stateLabel.textContent='OFF';
+    button.setAttribute('aria-pressed', String(mode==='playing'));
+  }
+  function fadeVolume(target,{pauseOnEnd=false,duration=900}={}){
+    cancelFade();
+    const start=performance.now();
+    const initial=Number.isFinite(audio.volume)?audio.volume:0;
+    const delta=target-initial;
+    if(Math.abs(delta)<0.005){
+      audio.volume=Math.max(0,Math.min(1,target));
+      state.currentVolume=audio.volume;
+      if(pauseOnEnd&&target<=0.001) audio.pause();
+      return;
+    }
+    const tick=(now)=>{
+      const t=Math.min(1,(now-start)/duration);
+      const eased=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+      audio.volume=Math.max(0,Math.min(1,initial+delta*eased));
+      state.currentVolume=audio.volume;
+      if(t<1) state.fadeFrame=requestAnimationFrame(tick);
+      else{ state.fadeFrame=0; if(pauseOnEnd&&target<=0.001) audio.pause(); }
+    };
+    state.fadeFrame=requestAnimationFrame(tick);
+  }
+  async function playMusic({fromInteraction=false}={}){
+    if(state.prefersOff){ setUi('muted'); return false; }
+    try{
+      if(audio.paused){
+        setUi(fromInteraction?'starting':'awaiting');
+        await audio.play();
+      }
+      state.started=true;
+      fadeVolume(state.targetVolume,{duration:1100});
+      setUi('playing');
+      return true;
+    }catch(error){
+      state.awaitingGesture=true;
+      setUi('awaiting');
+      return false;
+    }
+  }
+  function pauseMusic(){
+    state.awaitingGesture=false;
+    setUi('muted');
+    fadeVolume(0,{duration:460,pauseOnEnd:true});
+  }
+  function rememberPreference(isOff){
+    state.prefersOff=!!isOff;
+    localStorage.setItem(STORAGE_KEY,isOff?'off':'on');
+  }
+  async function toggleMusic(event){
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    if(!audio.paused && audio.currentTime>0){ rememberPreference(true); pauseMusic(); return; }
+    rememberPreference(false);
+    await playMusic({fromInteraction:true});
+  }
+
+  button.addEventListener('click',toggleMusic);
+
+  const onFirstGesture=async()=>{
+    if(state.prefersOff || !audio.paused) return cleanupFirstGesture();
+    const ok=await playMusic({fromInteraction:true});
+    if(ok) cleanupFirstGesture();
+  };
+  const gestureOpts={passive:true};
+  function cleanupFirstGesture(){
+    window.removeEventListener('pointerdown',onFirstGesture,gestureOpts);
+    window.removeEventListener('touchstart',onFirstGesture,gestureOpts);
+    window.removeEventListener('keydown',onFirstGesture,gestureOpts);
+    document.body.classList.remove('music-awaiting-gesture');
+  }
+  window.addEventListener('pointerdown',onFirstGesture,gestureOpts);
+  window.addEventListener('touchstart',onFirstGesture,gestureOpts);
+  window.addEventListener('keydown',onFirstGesture,gestureOpts);
+
+  audio.addEventListener('playing',()=>setUi('playing'));
+  audio.addEventListener('pause',()=>{ if(state.prefersOff || audio.volume<0.02) setUi('muted'); });
+  audio.addEventListener('ended',()=>{ audio.currentTime=0; playMusic(); });
+  audio.addEventListener('error',()=>{ setUi('muted'); console.warn('No se pudo cargar el audio ambiente.'); });
+
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden) return;
+    if(!state.prefersOff && state.started && audio.paused){
+      playMusic();
+    }
+  });
+
+  // Recalibra el volumen según el dispositivo.
+  const mqReduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+  const mqNarrow=window.matchMedia('(max-width: 760px)');
+  function recalcVolume(){
+    state.targetVolume=(mqReduced.matches?.valueOf?.() ? 0.16 : (mqNarrow.matches ? 0.20 : (lowPowerMode ? 0.18 : 0.24)));
+    if(!audio.paused) fadeVolume(state.targetVolume,{duration:320});
+  }
+  if(mqReduced.addEventListener) mqReduced.addEventListener('change',recalcVolume);
+  if(mqNarrow.addEventListener) mqNarrow.addEventListener('change',recalcVolume);
+  window.addEventListener('resize',()=>{ window.clearTimeout(initAmbientBackgroundMusic._resizeTimer); initAmbientBackgroundMusic._resizeTimer=window.setTimeout(recalcVolume,140); },{passive:true});
+
+  // Primer intento automático: en desktop suele iniciar; en mobile queda listo para el primer toque.
+  if(state.prefersOff){ setUi('muted'); }
+  else {
+    setUi('starting');
+    window.setTimeout(()=>playMusic({fromInteraction:false}),360);
+  }
 })();

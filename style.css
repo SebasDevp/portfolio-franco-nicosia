@@ -3779,3 +3779,173 @@ body[data-scene="3"] .reel-device-video{
     min-height:40px;
   }
 }
+
+
+/* =========================================================
+   V31 — FLUID PERFORMANCE / DEVICE COVERAGE
+   Optimización sin cambiar la identidad visual.
+   La música queda reservada para la próxima iteración.
+========================================================= */
+:root{--app-height:100vh}
+@supports(height:100dvh){:root{--app-height:100dvh}}
+
+/* Evita trabajo de pintura fuera de la escena visible y mejora rasterización. */
+.scene{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.scene[style*="visibility: hidden"]{pointer-events:none!important}
+img,video{max-width:100%}
+video{transform:translateZ(0)}
+
+/* Mejor respuesta táctil en todos los controles. */
+@media(pointer:coarse){
+  button,a{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+}
+
+/* Mobile: viewport estable, menos filtros costosos y scroll nativo. */
+@media(max-width:900px){
+  html,body.mobile-experience,.stage,body.mobile-experience .scene{
+    height:var(--app-height)!important;
+    min-height:var(--app-height)!important;
+    max-height:var(--app-height)!important;
+  }
+  body.mobile-experience .scene{will-change:transform,opacity!important}
+  body.mobile-experience .global-noise{opacity:.018}
+  body.mobile-experience .transition-overlay::before{opacity:.65}
+  body.mobile-experience .transition-beam{filter:none!important;opacity:.82}
+  body.mobile-experience .transition-flare{filter:blur(2px)!important}
+  body.mobile-experience .landing-background-light{filter:blur(30px)}
+  body.mobile-experience .about-ambient,
+  body.mobile-experience .work-ambient,
+  body.mobile-experience .reels-ambient{filter:blur(92px)!important}
+
+  /* El deck de reels no promociona filter como capa permanente mientras scrollea. */
+  body.mobile-experience .scene-reels .reel-device,
+  body.mobile-experience .scene-reels .reel-device-left,
+  body.mobile-experience .scene-reels .reel-device-main,
+  body.mobile-experience .scene-reels .reel-device-right{
+    will-change:transform,opacity!important;
+  }
+
+  /* Evita el rebote horizontal accidental en contenidos largos. */
+  body.mobile-experience .scene-about,
+  body.mobile-experience .scene-work,
+  body.mobile-experience .scene-reels{
+    overscroll-behavior-x:none!important;
+    scroll-behavior:auto!important;
+  }
+}
+
+/* Teléfonos angostos (320–380px). */
+@media(max-width:380px){
+  body.mobile-experience .header{padding-inline:12px!important}
+  body.mobile-experience .brand-copy strong{font-size:10.8px!important}
+  body.mobile-experience .brand-copy small{font-size:5.7px!important}
+  body.mobile-experience .header-location{font-size:5.3px!important}
+  body.mobile-experience .scene-landing .landing-name-wrap{top:74%!important;width:98vw!important}
+  body.mobile-experience .scene-landing .landing-name{font-size:clamp(58px,19.2vw,73px)!important}
+  body.mobile-experience .scene-about .scene-inner,
+  body.mobile-experience .scene-work .scene-inner,
+  body.mobile-experience .scene-reels .scene-inner{padding-left:16px!important;padding-right:16px!important}
+  body.mobile-experience .scene-about .photo-sphere{width:min(82vw,300px)!important;height:min(82vw,300px)!important}
+  body.mobile-experience .route-nav{transform:translateX(-50%) scale(.92)!important;transform-origin:center bottom!important}
+}
+
+/* Mobile grande / phablets. */
+@media(min-width:431px) and (max-width:900px){
+  body.mobile-experience .scene-landing .landing-name{font-size:clamp(82px,18.5vw,112px)!important}
+  body.mobile-experience .scene-about .about-title{font-size:clamp(58px,12vw,78px)!important}
+  body.mobile-experience .scene-about .photo-sphere{width:min(72vw,390px)!important;height:min(72vw,390px)!important}
+  body.mobile-experience .scene-reels .reel-devices-row{padding-inline:calc(50vw - 80px)!important}
+}
+
+/* Landscape en teléfono: conserva navegación y evita recortes por poca altura. */
+@media(max-height:520px) and (orientation:landscape) and (pointer:coarse){
+  body.mobile-experience .header{height:54px!important}
+  body.mobile-experience .brand-symbol{width:30px!important;height:30px!important}
+  body.mobile-experience .route-nav{bottom:max(6px,env(safe-area-inset-bottom))!important;transform:translateX(-50%) scale(.86)!important}
+  body.mobile-experience .direction-ui{bottom:58px!important}
+  body.mobile-experience .scene-landing .landing-name-wrap{top:68%!important;height:120px!important}
+  body.mobile-experience .scene-landing .landing-name{font-size:clamp(46px,11vw,68px)!important}
+  body.mobile-experience .scene-landing .landing-name-helper{top:48%!important}
+  body.mobile-experience .scene-about .scene-inner,
+  body.mobile-experience .scene-work .scene-inner,
+  body.mobile-experience .scene-reels .scene-inner{padding-top:62px!important}
+}
+
+/* Low power / Save-Data: quita GPU-costs secundarios sin tocar contenido. */
+body.low-power-experience .global-noise{display:none!important}
+body.low-power-experience .about-ambient,
+body.low-power-experience .work-ambient,
+body.low-power-experience .reels-ambient{display:none!important}
+body.low-power-experience .showcase-panel,
+body.low-power-experience .route-nav,
+body.low-power-experience .direction-arrow,
+body.low-power-experience .sphere-card{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+body.low-power-experience .scene-reels .reel-device,
+body.low-power-experience .scene-reels .reel-device-video{transition-duration:.22s!important}
+
+/* Respeta accesibilidad y, de paso, mantiene la web liviana en dispositivos que lo piden. */
+@media(prefers-reduced-motion:reduce){
+  .landing-scanline::after,.header-location i,.timeline-playhead{animation:none!important}
+  html{scroll-behavior:auto!important}
+}
+
+
+/* =========================================================
+   V32 — MUSIC TOGGLE / AMBIENT AUDIO
+========================================================= */
+.music-toggle{
+  position:fixed;
+  top:22px;
+  right:22px;
+  z-index:5600;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  min-height:38px;
+  padding:10px 12px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:999px;
+  background:rgba(6,10,8,.28);
+  backdrop-filter:blur(18px) saturate(115%);
+  -webkit-backdrop-filter:blur(18px) saturate(115%);
+  color:rgba(232,238,232,.82);
+  box-shadow:0 10px 40px rgba(0,0,0,.18), inset 0 0 0 1px rgba(255,255,255,.02);
+  transition:transform .35s ease,opacity .35s ease,border-color .35s ease,background .35s ease,color .35s ease,box-shadow .35s ease;
+  pointer-events:auto;
+}
+.music-toggle:hover{transform:translateY(-1px);opacity:1;border-color:rgba(127,255,145,.28);box-shadow:0 14px 40px rgba(0,0,0,.22),0 0 28px rgba(117,255,121,.08)}
+.music-toggle:active{transform:translateY(0) scale(.985)}
+.music-toggle:focus-visible{outline:none;border-color:rgba(127,255,145,.4);box-shadow:0 0 0 3px rgba(117,255,121,.12),0 14px 40px rgba(0,0,0,.22)}
+.music-toggle__eq{display:flex;align-items:flex-end;gap:3px;width:16px;height:14px;flex:0 0 auto}
+.music-toggle__eq i{display:block;width:3px;border-radius:999px;background:linear-gradient(180deg,var(--green-soft),var(--green));opacity:.86;transform-origin:center bottom;animation:musicEqIdle 1.6s ease-in-out infinite}
+.music-toggle__eq i:nth-child(1){height:40%;animation-delay:-.20s}
+.music-toggle__eq i:nth-child(2){height:95%;animation-delay:-.55s}
+.music-toggle__eq i:nth-child(3){height:62%;animation-delay:-.90s}
+.music-toggle__text{display:flex;flex-direction:column;align-items:flex-start;line-height:1}
+.music-toggle__label{font-family:"DM Mono",monospace;font-size:8px;letter-spacing:.18em;text-transform:uppercase}
+.music-toggle__state{margin-top:3px;font-family:"DM Mono",monospace;font-size:6px;letter-spacing:.16em;text-transform:uppercase;color:#758076}
+.music-toggle::after{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:linear-gradient(120deg,rgba(117,255,121,0),rgba(117,255,121,.16),rgba(255,255,255,.04),rgba(117,255,121,0));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.8;pointer-events:none}
+.music-toggle.is-playing{color:#f3fbf3;border-color:rgba(117,255,121,.24);background:rgba(4,10,7,.34)}
+.music-toggle.is-playing .music-toggle__eq i{animation-name:musicEqPlaying}
+.music-toggle.is-muted .music-toggle__eq i{animation:none;opacity:.24;background:rgba(255,255,255,.58)}
+.music-toggle.is-muted .music-toggle__state{color:#8d958d}
+.music-toggle.is-starting{animation:musicToggleHeartbeat 1.2s ease-in-out infinite}
+@keyframes musicEqIdle{0%,100%{transform:scaleY(.78);opacity:.5}50%{transform:scaleY(1);opacity:.82}}
+@keyframes musicEqPlaying{0%,100%{transform:scaleY(.32);opacity:.62}25%{transform:scaleY(1.08);opacity:1}50%{transform:scaleY(.46);opacity:.76}75%{transform:scaleY(.88);opacity:.94}}
+@keyframes musicToggleHeartbeat{0%,100%{box-shadow:0 10px 40px rgba(0,0,0,.18),0 0 0 0 rgba(117,255,121,0)}50%{box-shadow:0 14px 46px rgba(0,0,0,.22),0 0 0 10px rgba(117,255,121,.08)}}
+body.light-interface .music-toggle{background:rgba(255,255,255,.48);color:#102017;border-color:rgba(0,0,0,.11);box-shadow:0 10px 34px rgba(0,0,0,.08)}
+body.light-interface .music-toggle .music-toggle__state{color:#536055}
+body.light-interface .music-toggle.is-muted .music-toggle__eq i{background:rgba(0,0,0,.35)}
+body.music-awaiting-gesture .music-toggle{border-color:rgba(117,255,121,.26)}
+body.music-awaiting-gesture .music-toggle .music-toggle__state::after{content:" · TAP";color:var(--green)}
+@media(max-width:760px){
+  .music-toggle{top:max(12px,env(safe-area-inset-top));right:12px;min-height:34px;padding:9px 11px;gap:8px;transform-origin:top right}
+  .music-toggle__label{font-size:7px}
+  .music-toggle__state{font-size:5px}
+  .music-toggle__eq{width:14px;height:12px}
+  body.mobile-experience .music-toggle{top:max(12px,env(safe-area-inset-top));right:12px}
+}
+@media(max-width:420px){
+  .music-toggle{padding:8px 10px;gap:7px}
+  .music-toggle__label{font-size:6.5px;letter-spacing:.16em}
+}

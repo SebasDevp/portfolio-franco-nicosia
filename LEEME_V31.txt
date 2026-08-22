@@ -1,0 +1,7 @@
+PORTFOLIO FRANCO NICOSIA — V31
+
+Esta versión prioriza fluidez y compatibilidad responsive.
+La música todavía NO está activada. Fuente reservada para la próxima iteración:
+https://turuleka.com/wp-content/uploads/2026/08/Ambient-electronic-loop-licencia-libre-uso.mp3
+
+Cuando se integre, se hará con control flotante SOUND y fallback para autoplay bloqueado en mobile.

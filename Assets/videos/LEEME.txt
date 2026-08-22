@@ -14,3 +14,6 @@ Orden visual:
 
 Podés conservar 1.mp4, 2.mp4 y 3.mp4 dentro de Assets/videos como respaldo local.
 El archivo .gitignore evita que GitHub intente subirlos.
+
+
+V31: los MP4 locales siguen ignorados. El sitio usa las URLs remotas configuradas en el código.
