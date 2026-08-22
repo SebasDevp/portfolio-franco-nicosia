@@ -2973,3 +2973,355 @@ body[data-scene="3"] .reel-device-video{
 /* V25 cursor compositor fix */
 .mouse-glow{top:0;left:0}
 .cursor-dot,.cursor-ring,.mouse-glow{will-change:transform}
+
+/* =========================================================
+   V27 — MOBILE EXPERIENCE
+   Sólo <= 760px. Desktop queda intacto.
+   - Sobre mí abre primero.
+   - La esfera lidera y el contenido se recorre con scroll natural.
+   - Landing: artefacto arriba + nombre debajo, ambos reactivos al dedo.
+   - Navegación deliberada: el contenido se desplaza antes de cambiar escena.
+========================================================= */
+@media (max-width:760px){
+  html,
+  body.mobile-experience{
+    width:100%;
+    height:100%;
+    overscroll-behavior:none;
+  }
+
+  body.mobile-experience{
+    overflow:hidden;
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+  }
+
+  body.mobile-experience .stage{
+    inset:0;
+    overflow:hidden;
+  }
+
+  /* Las escenas de contenido sí pueden respirar verticalmente. La landing
+     continúa siendo un hero de una pantalla. */
+  body.mobile-experience .scene-about,
+  body.mobile-experience .scene-work,
+  body.mobile-experience .scene-reels{
+    overflow-x:hidden;
+    overflow-y:auto;
+    overscroll-behavior-y:contain;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    scroll-behavior:smooth;
+    touch-action:pan-y;
+  }
+
+  body.mobile-experience .scene-about::-webkit-scrollbar,
+  body.mobile-experience .scene-work::-webkit-scrollbar,
+  body.mobile-experience .scene-reels::-webkit-scrollbar{
+    display:none;
+  }
+
+  body.mobile-experience .scene-landing{
+    overflow:hidden;
+    touch-action:pan-y;
+  }
+
+  /* Header más compacto para liberar la primera pantalla móvil. */
+  body.mobile-experience .header{
+    height:68px;
+    padding:0 16px;
+  }
+
+  body.mobile-experience .brand-symbol{
+    width:36px;
+    height:36px;
+    font-size:7.5px;
+  }
+
+  body.mobile-experience .brand-copy strong{font-size:12px}
+  body.mobile-experience .brand-copy small{font-size:6.3px}
+  body.mobile-experience .header-location{font-size:6px;letter-spacing:.10em}
+
+  /* Navegación: mantiene presencia pero deja una zona segura inferior. */
+  body.mobile-experience .route-nav{
+    bottom:max(13px,env(safe-area-inset-bottom));
+    padding:6px 8px;
+    border:1px solid rgba(117,255,121,.055);
+    border-radius:999px;
+    background:rgba(3,7,4,.26);
+    backdrop-filter:blur(9px);
+  }
+
+  body.mobile-experience.light-interface .route-nav{
+    border-color:rgba(18,64,31,.07);
+    background:rgba(238,243,237,.38);
+  }
+
+  body.mobile-experience .route{
+    width:42px;
+  }
+
+  body.mobile-experience .route span{
+    width:29px;
+    height:29px;
+    font-size:7.9px;
+  }
+
+  body.mobile-experience .route-nav>i{width:14px}
+
+  body.mobile-experience .direction-ui{
+    right:12px;
+    bottom:76px;
+  }
+
+  body.mobile-experience .direction-arrow{
+    width:40px;
+    height:40px;
+    font-size:17px;
+    background:rgba(5,10,7,.48);
+    backdrop-filter:blur(10px);
+  }
+
+  body.mobile-experience.light-interface .direction-arrow{
+    background:rgba(245,248,244,.62);
+  }
+
+  /* -------------------------------------------------------
+     MOBILE 01 — SOBRE FRANCO (primera experiencia)
+  ------------------------------------------------------- */
+  body.mobile-experience .scene-about .scene-inner{
+    width:100%;
+    min-height:0;
+    height:auto;
+    padding:78px 20px 154px;
+  }
+
+  body.mobile-experience .scene-about .about-layout{
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    gap:34px;
+    transform:none;
+  }
+
+  /* La esfera aparece antes que el texto en móvil. */
+  body.mobile-experience .scene-about .sphere-world{
+    order:-1;
+    width:100%;
+    height:470px;
+    min-height:470px;
+    margin:0 auto 2px;
+    overflow:visible;
+  }
+
+  body.mobile-experience .scene-about .photo-sphere{
+    width:min(84vw,360px);
+    height:min(84vw,360px);
+    max-width:none;
+    max-height:none;
+    box-shadow:
+      inset -45px -55px 105px rgba(0,0,0,.48),
+      0 0 66px rgba(70,255,100,.10),
+      0 34px 75px rgba(0,0,0,.30);
+  }
+
+  body.mobile-experience .scene-about .orbit-one{
+    width:min(96vw,410px);
+    height:min(96vw,410px);
+  }
+  body.mobile-experience .scene-about .orbit-two{
+    width:min(108vw,458px);
+    height:min(108vw,458px);
+  }
+  body.mobile-experience .scene-about .orbit-three{
+    width:min(120vw,510px);
+    height:min(120vw,510px);
+  }
+
+  /* Tarjetas acompañan pero no tapan la interacción principal. */
+  body.mobile-experience .scene-about .sphere-card{
+    width:142px;
+    padding:11px 12px;
+    gap:9px;
+    backdrop-filter:blur(12px);
+  }
+  body.mobile-experience .scene-about .sphere-card strong{font-size:10.5px}
+  body.mobile-experience .scene-about .sphere-card small{font-size:6.7px}
+  body.mobile-experience .scene-about .sphere-card-one{top:14%;left:-2px}
+  body.mobile-experience .scene-about .sphere-card-two{top:auto;right:-2px;bottom:14%}
+  body.mobile-experience .scene-about .sphere-card-three{display:none}
+
+  body.mobile-experience .scene-about .sphere-whatsapp-hint{
+    padding:12px 18px;
+    font-size:7.3px;
+  }
+
+  body.mobile-experience .scene-about .about-copy{
+    width:100%;
+    padding:0 3px 12px;
+  }
+
+  body.mobile-experience .scene-about .eyebrow{
+    margin-bottom:20px;
+    font-size:8.4px;
+  }
+
+  body.mobile-experience .scene-about .about-title{
+    font-size:clamp(52px,14.2vw,68px);
+    line-height:.93;
+    letter-spacing:-.055em;
+  }
+
+  body.mobile-experience .scene-about .about-description{
+    max-width:none;
+    margin-top:24px;
+    font-size:12.3px;
+    line-height:1.78;
+  }
+
+  body.mobile-experience .scene-about .about-description-secondary{
+    margin-top:14px;
+  }
+
+  body.mobile-experience .scene-about .about-data{
+    width:100%;
+    max-width:none;
+    margin-top:30px;
+  }
+
+  body.mobile-experience .scene-about .about-data>div{
+    min-height:98px;
+    padding:12px;
+  }
+
+  body.mobile-experience .scene-about .about-data small{font-size:6px}
+  body.mobile-experience .scene-about .about-data strong{font-size:24px}
+  body.mobile-experience .scene-about .about-data span{font-size:7px}
+
+  /* -------------------------------------------------------
+     MOBILE 02 — LANDING
+     Objeto arriba / nombre debajo. Mantiene la superposición de capas,
+     pero evita que compitan en la misma zona.
+  ------------------------------------------------------- */
+  body.mobile-experience .scene-landing .landing-three{
+    inset:0;
+    width:100%;
+    height:100%;
+    filter:drop-shadow(0 20px 28px rgba(28,97,47,.05));
+  }
+
+  body.mobile-experience .scene-landing .landing-name-wrap{
+    top:70%;
+    left:50%;
+    width:95vw;
+    height:210px;
+    transform:
+      translate(-50%,-50%)
+      translate3d(var(--name-x),var(--name-y),0)
+      rotateX(var(--name-tilt-x))
+      rotateY(var(--name-tilt-y));
+  }
+
+  body.mobile-experience .scene-landing .landing-name{
+    font-size:clamp(72px,21.5vw,102px);
+    line-height:.80;
+    letter-spacing:-.068em;
+  }
+
+  body.mobile-experience .scene-landing .landing-name-line{
+    line-height:.92;
+    padding-inline:.10em;
+    padding-bottom:.075em;
+  }
+
+  body.mobile-experience .scene-landing .landing-name-helper{
+    top:55.5%;
+    left:50%;
+    max-width:88vw;
+    gap:7px;
+    font-size:5.7px;
+    letter-spacing:.065em;
+    white-space:normal;
+    text-align:center;
+  }
+
+  body.mobile-experience .scene-landing .landing-name-helper i{width:15px}
+
+  body.mobile-experience .scene-landing .landing-sacred-grid{
+    inset:-6%;
+    opacity:.105;
+    -webkit-mask-size:920px auto;
+    mask-size:920px auto;
+  }
+
+  body.mobile-experience .scene-landing.name-active .landing-sacred-grid{opacity:.155}
+
+  body.mobile-experience .scene-landing .landing-scanline{
+    top:56%;
+    opacity:.18;
+  }
+
+  body.mobile-experience .scene-landing .artifact-fallback{
+    top:31%;
+    left:50%;
+    width:250px;
+    height:250px;
+  }
+
+  /* -------------------------------------------------------
+     MOBILE 03/04 — contenido con scroll real y zona segura.
+  ------------------------------------------------------- */
+  body.mobile-experience .scene-work .scene-inner,
+  body.mobile-experience .scene-reels .scene-inner{
+    min-height:0;
+    height:auto;
+    padding-top:84px;
+    padding-bottom:150px;
+  }
+
+  body.mobile-experience .scene-work .work-layout-showcase,
+  body.mobile-experience .scene-reels .reels-layout{
+    align-items:start;
+  }
+
+  /* Animaciones móviles más baratas: la profundidad sigue estando, pero
+     evitamos blur/backdrop excesivos mientras se desplaza el contenido. */
+  body.mobile-experience .transition-beam{filter:blur(9px)}
+  body.mobile-experience .transition-flare{filter:blur(6px)}
+  body.mobile-experience .mouse-glow{display:none}
+
+  body.mobile-experience .showcase-panel,
+  body.mobile-experience .sphere-card,
+  body.mobile-experience .route-nav{
+    -webkit-backdrop-filter:blur(9px);
+    backdrop-filter:blur(9px);
+  }
+
+  /* Pista mínima para explicar que la primera escena puede continuar. */
+  body.mobile-experience .scene-about::after{
+    content:"DESLIZÁ PARA VER MÁS · CAMBIÁ DE SECCIÓN DESDE EL BORDE";
+    position:absolute;
+    z-index:60;
+    left:50%;
+    top:64px;
+    width:max-content;
+    max-width:78vw;
+    transform:translateX(-50%);
+    color:rgba(117,255,121,.42);
+    font-family:"DM Mono",monospace;
+    font-size:5.5px;
+    line-height:1.4;
+    letter-spacing:.09em;
+    text-align:center;
+    pointer-events:none;
+  }
+}
+
+/* Alturas móviles cortas: preserva el orden objeto/nombre sin cortar UI. */
+@media (max-width:760px) and (max-height:690px){
+  body.mobile-experience .scene-landing .landing-name-wrap{top:72%;height:185px}
+  body.mobile-experience .scene-landing .landing-name{font-size:clamp(64px,19.5vw,88px)}
+  body.mobile-experience .scene-landing .landing-name-helper{top:57%}
+  body.mobile-experience .scene-about .sphere-world{height:420px;min-height:420px}
+  body.mobile-experience .scene-about .photo-sphere{width:min(78vw,330px);height:min(78vw,330px)}
+}

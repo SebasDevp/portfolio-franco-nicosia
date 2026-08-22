@@ -4,10 +4,16 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 const deviceMemory = Number(navigator.deviceMemory || 8);
 const cpuCores = Number(navigator.hardwareConcurrency || 8);
 const lowPowerMode = deviceMemory <= 4 || cpuCores <= 4;
+const mobileMedia = window.matchMedia('(max-width:760px)');
+const mobileMode = mobileMedia.matches;
 const getRenderDPR = () => Math.min(
   window.devicePixelRatio || 1,
-  lowPowerMode ? 1.25 : (window.innerWidth < 900 ? 1.35 : 1.5)
+  mobileMode ? 1.15 : (lowPowerMode ? 1.25 : (window.innerWidth < 900 ? 1.35 : 1.5))
 );
+
+/* La experiencia móvil tiene un orden propio. Si se cruza el breakpoint,
+   recargamos una sola vez para no mezclar estados de navegación. */
+mobileMedia.addEventListener?.('change',()=>window.location.reload());
 const runWhenIdle = (callback, timeout=900) => {
   if('requestIdleCallback' in window){
     return window.requestIdleCallback(callback,{timeout});
@@ -31,20 +37,35 @@ const transitionBeam = document.getElementById('transitionBeam');
 const transitionFlare = document.getElementById('transitionFlare');
 const transitionIndex = document.getElementById('transitionIndex');
 
-let currentScene = 0;
+const mobileSceneOrder = [1,0,2,3];
+const desktopSceneOrder = [0,1,2,3];
+const activeSceneOrder = mobileMode ? mobileSceneOrder : desktopSceneOrder;
+const displayIndexForScene = sceneIndex => activeSceneOrder.indexOf(sceneIndex) + 1;
+
+let currentScene = mobileMode ? 1 : 0;
 let isTransitioning = false;
 let wheelAccumulator = 0;
 let wheelResetTimer = null;
 let ignoreWheelUntil = 0;
 let reelVideoViewerOpen = false;
 
-const forwardRoute = {
+const forwardRoute = mobileMode ? {
+  1:{target:0,direction:'down'},
+  0:{target:2,direction:'down'},
+  2:{target:3,direction:'down'},
+  3:{target:1,direction:'up'}
+} : {
   0:{target:1,direction:'right'},
   1:{target:2,direction:'right'},
   2:{target:3,direction:'down'},
   3:{target:0,direction:'left'}
 };
-const backwardRoute = {
+const backwardRoute = mobileMode ? {
+  1:{target:3,direction:'down'},
+  3:{target:2,direction:'up'},
+  2:{target:0,direction:'up'},
+  0:{target:1,direction:'up'}
+} : {
   0:{target:3,direction:'right'},
   3:{target:2,direction:'up'},
   2:{target:1,direction:'left'},
@@ -54,12 +75,32 @@ const vectors = {right:{x:1,y:0},left:{x:-1,y:0},down:{x:0,y:1},up:{x:0,y:-1}};
 
 scenes.forEach((scene,index)=>{
   if(gsap){
-    gsap.set(scene,{autoAlpha:index===0?1:0,visibility:index===0?'visible':'hidden',pointerEvents:index===0?'auto':'none',xPercent:0,yPercent:0,scale:1,filter:'blur(0px)',zIndex:index===0?3:1});
+    gsap.set(scene,{autoAlpha:index===currentScene?1:0,visibility:index===currentScene?'visible':'hidden',pointerEvents:index===currentScene?'auto':'none',xPercent:0,yPercent:0,scale:1,filter:'blur(0px)',zIndex:index===currentScene?3:1});
   }else{
-    scene.style.visibility=index===0?'visible':'hidden';
-    scene.style.opacity=index===0?'1':'0';
+    scene.style.visibility=index===currentScene?'visible':'hidden';
+    scene.style.opacity=index===currentScene?'1':'0';
   }
 });
+
+function configureMobileExperience(){
+  if(!mobileMode)return;
+  document.body.classList.add('mobile-experience');
+  const mobileLabels={
+    1:['01','Franco'],
+    0:['02','Inicio'],
+    2:['03','Trabajo'],
+    3:['04','Reels']
+  };
+  routes.forEach(route=>{
+    const sceneIndex=Number(route.dataset.jump);
+    const data=mobileLabels[sceneIndex];
+    if(!data)return;
+    route.querySelector('span').textContent=data[0];
+    route.querySelector('small').textContent=data[1];
+  });
+  const helper=landingSceneEl?.querySelector?.('.landing-name-helper span');
+  if(helper)helper.textContent='DESLIZÁ EL DEDO · NOMBRE + OBJETO REACCIONAN';
+}
 
 function revealSceneContent(scene){
   const elements=scene.querySelectorAll('.reveal-item');
@@ -71,7 +112,7 @@ function revealSceneContent(scene){
 
 let landingThreeActive=true;
 function updateInterface(){
-  currentPageElement.textContent=String(currentScene+1).padStart(2,'0');
+  currentPageElement.textContent=String(displayIndexForScene(currentScene)).padStart(2,'0');
   routes.forEach(route=>route.classList.remove('active'));
   document.querySelector(`.route[data-jump="${currentScene}"]`)?.classList.add('active');
   directionArrow.textContent={right:'→',left:'←',down:'↓',up:'↑'}[forwardRoute[currentScene].direction];
@@ -84,25 +125,26 @@ function updateInterface(){
 function playTransitionEffect(direction,from,target){
   if(!gsap)return;
   const vector=vectors[direction];
-  transitionIndex.textContent=`${String(from+1).padStart(2,'0')} → ${String(target+1).padStart(2,'0')}`;
+  transitionIndex.textContent=`${String(displayIndexForScene(from)).padStart(2,'0')} → ${String(displayIndexForScene(target)).padStart(2,'0')}`;
   gsap.killTweensOf([transitionOverlay,transitionBeam,transitionFlare,transitionIndex]);
   gsap.set(transitionOverlay,{visibility:'visible',autoAlpha:1});
   gsap.set(transitionFlare,{scale:.3,autoAlpha:0});
   if(vector.x!==0){
     gsap.set(transitionBeam,{top:'-20%',left:'50%',width:'20vw',height:'140%',xPercent:vector.x*650,yPercent:0,rotation:vector.x>0?7:-7});
-    gsap.to(transitionBeam,{xPercent:vector.x*-650,duration:1.08,ease:'power4.inOut'});
+    gsap.to(transitionBeam,{xPercent:vector.x*-650,duration:mobileMode?1.28:1.08,ease:'power4.inOut'});
   }else{
     gsap.set(transitionBeam,{left:'-20%',top:'50%',width:'140%',minWidth:0,height:'20vh',xPercent:0,yPercent:vector.y*650,rotation:0});
-    gsap.to(transitionBeam,{yPercent:vector.y*-650,duration:1.08,ease:'power4.inOut'});
+    gsap.to(transitionBeam,{yPercent:vector.y*-650,duration:mobileMode?1.28:1.08,ease:'power4.inOut'});
   }
-  gsap.to(transitionFlare,{autoAlpha:.8,scale:1.6,duration:.27,delay:.35,yoyo:true,repeat:1,ease:'power2.out'});
-  gsap.fromTo(transitionIndex,{scale:.8,autoAlpha:0},{scale:1,autoAlpha:.7,duration:.27,delay:.1,yoyo:true,repeat:1,repeatDelay:.2,ease:'power3.out'});
-  gsap.to(transitionOverlay,{autoAlpha:0,delay:.85,duration:.35,onComplete:()=>gsap.set(transitionOverlay,{visibility:'hidden'})});
+  gsap.to(transitionFlare,{autoAlpha:.8,scale:1.6,duration:mobileMode?.34:.27,delay:mobileMode?.42:.35,yoyo:true,repeat:1,ease:'power2.out'});
+  gsap.fromTo(transitionIndex,{scale:.8,autoAlpha:0},{scale:1,autoAlpha:.7,duration:mobileMode?.34:.27,delay:mobileMode?.14:.1,yoyo:true,repeat:1,repeatDelay:mobileMode?.28:.2,ease:'power3.out'});
+  gsap.to(transitionOverlay,{autoAlpha:0,delay:mobileMode?1.03:.85,duration:mobileMode?.42:.35,onComplete:()=>gsap.set(transitionOverlay,{visibility:'hidden'})});
 }
 
 function transitionTo(target,direction){
   if(isTransitioning||target===currentScene)return;
   const oldIndex=currentScene,oldScene=scenes[oldIndex],newScene=scenes[target],vector=vectors[direction];
+  if(mobileMode && 'scrollTop' in newScene)newScene.scrollTop=0;
   if(!gsap){
     oldScene.style.visibility='hidden';oldScene.style.opacity='0';oldScene.style.pointerEvents='none';
     newScene.style.visibility='visible';newScene.style.opacity='1';newScene.style.pointerEvents='auto';
@@ -118,14 +160,14 @@ function transitionTo(target,direction){
     gsap.set(oldScene,{visibility:'hidden',autoAlpha:0,pointerEvents:'none',xPercent:0,yPercent:0,scale:1,filter:'blur(0px)',zIndex:1});
     if(oldInner)gsap.set(oldInner,{x:0,y:0,scale:1});
     gsap.set(newScene,{pointerEvents:'auto',zIndex:3});
-    isTransitioning=false;ignoreWheelUntil=performance.now()+300;
+    isTransitioning=false;ignoreWheelUntil=performance.now()+(mobileMode?720:300);
   }});
-  tl.to(oldScene,{xPercent:vector.x*-20,yPercent:vector.y*-20,scale:.96,autoAlpha:.12,filter:'blur(4px)',force3D:true,duration:.96,ease:'power4.inOut'},0);
-  if(oldInner)tl.to(oldInner,{x:vector.x*-42,y:vector.y*-42,scale:.985,force3D:true,duration:.96,ease:'power4.inOut'},0);
-  tl.to(newScene,{xPercent:0,yPercent:0,scale:1,filter:'blur(0px)',force3D:true,duration:1.02,ease:'power4.inOut'},0);
-  if(newInner)tl.to(newInner,{x:0,y:0,scale:1,force3D:true,duration:1.06,ease:'power4.out'},.03);
+  tl.to(oldScene,{xPercent:vector.x*(mobileMode?-14:-20),yPercent:vector.y*(mobileMode?-14:-20),scale:mobileMode?.975:.96,autoAlpha:.12,filter:mobileMode?'blur(2px)':'blur(4px)',force3D:true,duration:mobileMode?1.18:.96,ease:'power4.inOut'},0);
+  if(oldInner)tl.to(oldInner,{x:vector.x*(mobileMode?-24:-42),y:vector.y*(mobileMode?-24:-42),scale:mobileMode?.994:.985,force3D:true,duration:mobileMode?1.18:.96,ease:'power4.inOut'},0);
+  tl.to(newScene,{xPercent:0,yPercent:0,scale:1,filter:'blur(0px)',force3D:true,duration:mobileMode?1.24:1.02,ease:'power4.inOut'},0);
+  if(newInner)tl.to(newInner,{x:0,y:0,scale:1,force3D:true,duration:mobileMode?1.28:1.06,ease:'power4.out'},.03);
   currentScene=target;updateInterface();
-  setTimeout(()=>{revealSceneContent(newScene);},390);
+  setTimeout(()=>{revealSceneContent(newScene);},mobileMode?520:390);
 }
 
 function goForward(){const route=forwardRoute[currentScene];transitionTo(route.target,route.direction)}
@@ -136,8 +178,9 @@ window.addEventListener('wheel',event=>{
   if(reelVideoViewerOpen){wheelAccumulator=0;return;}
   if(isTransitioning||performance.now()<ignoreWheelUntil){wheelAccumulator=0;return;}
   wheelAccumulator+=event.deltaY;
-  clearTimeout(wheelResetTimer);wheelResetTimer=setTimeout(()=>wheelAccumulator=0,170);
-  if(wheelAccumulator>70){wheelAccumulator=0;goForward()}else if(wheelAccumulator<-70){wheelAccumulator=0;goBackward()}
+  clearTimeout(wheelResetTimer);wheelResetTimer=setTimeout(()=>wheelAccumulator=0,mobileMode?280:170);
+  const wheelThreshold=mobileMode?230:70;
+  if(wheelAccumulator>wheelThreshold){wheelAccumulator=0;goForward()}else if(wheelAccumulator<-wheelThreshold){wheelAccumulator=0;goBackward()}
 },{passive:false});
 nextTriggers.forEach(button=>button.addEventListener('click',goForward));
 jumpButtons.forEach(button=>button.addEventListener('click',()=>{
@@ -157,13 +200,39 @@ window.addEventListener('keydown',event=>{
   if(['ArrowLeft','ArrowUp','PageUp'].includes(event.key)){event.preventDefault();goBackward()}
 });
 
-let touchStartX=0,touchStartY=0,touchStartedOnSphere=false;
-window.addEventListener('touchstart',event=>{const t=event.touches[0];touchStartX=t.clientX;touchStartY=t.clientY;touchStartedOnSphere=Boolean(event.target.closest('#photoSphere'))},{passive:true});
+let touchStartX=0,touchStartY=0,touchStartTime=0,touchStartedOnSphere=false,touchStartScrollTop=0,touchStartedAtTop=false,touchStartedAtBottom=false,lastMobileNavigationAt=0;
+window.addEventListener('touchstart',event=>{
+  const t=event.touches[0];
+  touchStartX=t.clientX;touchStartY=t.clientY;touchStartTime=performance.now();
+  touchStartedOnSphere=Boolean(event.target.closest('#photoSphere'));
+  const scene=scenes[currentScene];
+  touchStartScrollTop=scene?.scrollTop||0;
+  touchStartedAtTop=touchStartScrollTop<=4;
+  touchStartedAtBottom=Boolean(scene)&&scene.scrollHeight-scene.clientHeight-touchStartScrollTop<=6;
+},{passive:true});
 window.addEventListener('touchend',event=>{
   if(reelVideoViewerOpen||touchStartedOnSphere||isTransitioning)return;
   const t=event.changedTouches[0],dx=t.clientX-touchStartX,dy=t.clientY-touchStartY;
-  if(Math.max(Math.abs(dx),Math.abs(dy))<65)return;
-  if(Math.abs(dy)>Math.abs(dx)){dy<0?goForward():goBackward()}else{dx<0?goForward():goBackward()}
+  const duration=performance.now()-touchStartTime;
+
+  if(!mobileMode){
+    if(Math.max(Math.abs(dx),Math.abs(dy))<65)return;
+    if(Math.abs(dy)>Math.abs(dx)){dy<0?goForward():goBackward()}else{dx<0?goForward():goBackward()}
+    return;
+  }
+
+  /* En mobile el gesto vertical primero pertenece al contenido. Sólo una segunda
+     intención, iniciada ya en el borde del scroll, cambia de escena. */
+  if(duration<170||Math.abs(dy)<125||Math.abs(dy)<Math.abs(dx)*1.18)return;
+  const scene=scenes[currentScene];
+  const scrollable=scene&&scene.scrollHeight>scene.clientHeight+10;
+  if(scrollable){
+    if(dy<0&&!touchStartedAtBottom)return;
+    if(dy>0&&!touchStartedAtTop)return;
+  }
+  if(performance.now()-lastMobileNavigationAt<1150)return;
+  lastMobileNavigationAt=performance.now();
+  dy<0?goForward():goBackward();
 },{passive:true});
 
 /* Cursor */
@@ -176,6 +245,7 @@ window.addEventListener('pointermove',event=>{
 
 /* Un solo RAF para cursor + glow. Evita dos loops globales permanentes. */
 (function pointerUiLoop(){
+  if(mobileMode)return;
   if(!document.hidden){
     ringX+=(mouseX-ringX)*.13;ringY+=(mouseY-ringY)*.13;
     glowX+=(mouseX-glowX)*.045;glowY+=(mouseY-glowY)*.045;
@@ -259,19 +329,38 @@ function initLandingThree(){
     const key=new THREE.DirectionalLight(0xffffff,4.2);key.position.set(-4,5,6);landingScene.add(key);
     const green=new THREE.PointLight(0x69ff83,19,13,2);green.position.set(3,-1,4);landingScene.add(green);
     const soft=new THREE.PointLight(0xdfffe4,13,12,2);soft.position.set(-3,2,4);landingScene.add(soft);
-    const geometry=new THREE.TorusKnotGeometry(.90,.25,lowPowerMode?210:260,lowPowerMode?38:48,2,3);
+    const geometry=new THREE.TorusKnotGeometry(.90,.25,mobileMode?170:(lowPowerMode?210:260),mobileMode?30:(lowPowerMode?38:48),2,3);
     const material=new THREE.MeshPhysicalMaterial({color:0x9effa8,roughness:.065,metalness:.02,transmission:.48,transparent:true,opacity:.91,thickness:.95,ior:1.4,clearcoat:1,clearcoatRoughness:.04,iridescence:.10,side:THREE.DoubleSide});
     landingKnot=new THREE.Mesh(geometry,material);landingKnot.position.set(landingBaseX,landingBaseY,1);landingScene.add(landingKnot);
     landingWire=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial({color:0x218a43,wireframe:true,transparent:true,opacity:.052,depthWrite:false}));landingWire.position.copy(landingKnot.position);landingScene.add(landingWire);
-    const haloGeometry=new THREE.TorusGeometry(1.34,.006,10,lowPowerMode?120:160),haloMaterial=new THREE.MeshBasicMaterial({color:0x208b42,transparent:true,opacity:.105});
+    const haloGeometry=new THREE.TorusGeometry(1.34,.006,10,mobileMode?96:(lowPowerMode?120:160)),haloMaterial=new THREE.MeshBasicMaterial({color:0x208b42,transparent:true,opacity:.105});
     landingHaloA=new THREE.Mesh(haloGeometry,haloMaterial);landingHaloA.rotation.x=Math.PI*.64;landingHaloA.position.set(landingBaseX,landingBaseY,.35);landingScene.add(landingHaloA);
     landingHaloB=new THREE.Mesh(haloGeometry,haloMaterial.clone());landingHaloB.scale.setScalar(1.18);landingHaloB.rotation.y=Math.PI*.63;landingHaloB.material.opacity=.045;landingHaloB.position.set(landingBaseX,landingBaseY,.18);landingScene.add(landingHaloB);
-    const count=lowPowerMode?72:100,positions=new Float32Array(count*3);for(let i=0;i<count;i++){positions[i*3]=(Math.random()-.5)*5;positions[i*3+1]=(Math.random()-.5)*3.2;positions[i*3+2]=.1+Math.random()*1.3}
+    const count=mobileMode?54:(lowPowerMode?72:100),positions=new Float32Array(count*3);for(let i=0;i<count;i++){positions[i*3]=(Math.random()-.5)*5;positions[i*3+1]=(Math.random()-.5)*3.2;positions[i*3+2]=.1+Math.random()*1.3}
     const pGeo=new THREE.BufferGeometry();pGeo.setAttribute('position',new THREE.BufferAttribute(positions,3));landingPoints=new THREE.Points(pGeo,new THREE.PointsMaterial({color:0x208c43,size:.011,transparent:true,opacity:.20}));landingScene.add(landingPoints);
     landingClock=new THREE.Clock();resizeLandingThree();renderLandingThree();
   }catch(error){console.error('Three.js error:',error);artifactFallback.classList.add('visible')}
 }
-window.addEventListener('pointermove',event=>{landingPointer.x=event.clientX/innerWidth*2-1;landingPointer.y=-(event.clientY/innerHeight*2-1)});
+function setLandingArtifactPointer(clientX,clientY){
+  landingPointer.x=clientX/innerWidth*2-1;
+  landingPointer.y=-(clientY/innerHeight*2-1);
+}
+window.addEventListener('pointermove',event=>setLandingArtifactPointer(event.clientX,event.clientY),{passive:true});
+landingSceneEl.addEventListener('touchmove',event=>{
+  if(currentScene!==0||!event.touches.length)return;
+  const t=event.touches[0];
+  setLandingArtifactPointer(t.clientX,t.clientY);
+  /* El gesto también alimenta la tipografía y la geometría sin bloquear el swipe. */
+  const nx=t.clientX/innerWidth-.5,ny=t.clientY/innerHeight;
+  nameTargetFill=Math.max(2,Math.min(98,ny*108-4));
+  nameTargetX=nx*8;nameTargetY=(ny-.5)*7;nameTiltX=(.5-ny)*1.4;nameTiltY=nx*1.8;
+  landingSceneEl.classList.add('name-active');
+  document.documentElement.style.setProperty('--line-x',`${Math.max(0,Math.min(100,t.clientX/innerWidth*100))}%`);
+},{passive:true});
+landingSceneEl.addEventListener('touchend',()=>{
+  nameTargetX=0;nameTargetY=0;nameTiltX=0;nameTiltY=0;
+  landingPointer.x=0;landingPointer.y=0;
+},{passive:true});
 function resizeLandingThree(){
   if(!landingRenderer||!landingCamera)return;
   landingRenderer.setPixelRatio(getRenderDPR());landingRenderer.setSize(innerWidth,innerHeight,false);landingCamera.aspect=innerWidth/innerHeight;landingCamera.updateProjectionMatrix();
@@ -286,8 +375,8 @@ function resizeLandingThree(){
   else if(innerWidth>1450){landingBaseX=-2.88;landingBaseScale=1.045;}
   else if(innerWidth>1100){landingBaseX=-2.60;landingBaseScale=1.005;}
   else if(innerWidth>760){landingBaseX=-1.29;landingBaseScale=.855;}
-  else{landingBaseX=-.56;landingBaseScale=.655;}
-  landingBaseY=innerWidth>760?.04:.02;
+  else{landingBaseX=0;landingBaseScale=.72;}
+  landingBaseY=innerWidth>760?.04:.92;
   const scale=landingBaseScale;
   landingKnot.scale.setScalar(scale);landingWire.scale.setScalar(scale*1.006);landingHaloA.scale.setScalar(scale*.92);landingHaloB.scale.setScalar(scale*1.02);
   landingKnot.position.set(landingBaseX,landingBaseY,1);landingWire.position.copy(landingKnot.position);landingHaloA.position.set(landingBaseX,landingBaseY,.35);landingHaloB.position.set(landingBaseX,landingBaseY,.18);
@@ -542,6 +631,14 @@ landingSceneEl.addEventListener('pointermove',event=>{
   reactiveGeoTargetX=Math.max(0,Math.min(100,event.clientX/innerWidth*100));
   reactiveGeoTargetY=Math.max(0,Math.min(100,event.clientY/innerHeight*100));
 });
+landingSceneEl.addEventListener('touchmove',event=>{
+  if(currentScene!==0||!event.touches.length)return;
+  const t=event.touches[0],nameRect=landingNameWrap.getBoundingClientRect();
+  reactiveNameTargetX=Math.max(-85,Math.min(185,(t.clientX-nameRect.left)/nameRect.width*100));
+  reactiveNameTargetY=Math.max(-85,Math.min(185,(t.clientY-nameRect.top)/nameRect.height*100));
+  reactiveGeoTargetX=Math.max(0,Math.min(100,t.clientX/innerWidth*100));
+  reactiveGeoTargetY=Math.max(0,Math.min(100,t.clientY/innerHeight*100));
+},{passive:true});
 
 landingSceneEl.addEventListener('pointerleave',()=>{
   reactiveNameTargetX=-68;
@@ -564,7 +661,7 @@ landingSceneEl.addEventListener('pointerleave',()=>{
   requestAnimationFrame(reactiveLandingColorLoop);
 })();
 
-async function boot(){try{await document.fonts.ready}catch(error){console.warn('No se pudieron esperar las fuentes.',error)}initLandingThree();updateInterface();landingNameWrap.classList.add('is-ready');revealSceneContent(scenes[0])}
+async function boot(){try{await document.fonts.ready}catch(error){console.warn('No se pudieron esperar las fuentes.',error)}configureMobileExperience();initLandingThree();updateInterface();landingNameWrap.classList.add('is-ready');revealSceneContent(scenes[currentScene]);if(mobileMode&&currentScene===1)scheduleIdleSphereTease(1050)}
 boot();
 
 /* =========================================================
