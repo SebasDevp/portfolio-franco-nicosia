@@ -10,10 +10,17 @@ const coarsePointerMedia = window.matchMedia('(pointer: coarse)');
 const mobileMode = mobileMedia.matches || (coarsePointerMedia.matches && window.innerWidth < 1100);
 if(mobileMode) document.body.classList.add('mobile-experience');
 if(lowPowerMode) document.body.classList.add('low-power-experience');
-const getRenderDPR = () => Math.min(
-  window.devicePixelRatio || 1,
-  mobileMode ? (lowPowerMode ? 0.92 : 1.0) : (lowPowerMode ? 1.18 : (window.innerWidth < 1100 ? 1.28 : 1.45))
-);
+const getRenderDPR = () => {
+  const dpr=window.devicePixelRatio||1;
+  if(mobileMode) return Math.min(dpr, lowPowerMode ? .86 : .96);
+  // En pantallas grandes el canvas ocupa toda la ventana. Un DPR alto multiplica
+  // brutalmente los píxeles a renderizar sin aportar una diferencia visible real.
+  const pixelLoad=window.innerWidth*window.innerHeight*Math.min(dpr,2)**2;
+  const cap=lowPowerMode ? 1.0 : (pixelLoad>7000000 ? .95 : pixelLoad>4500000 ? 1.02 : window.innerWidth>1600 ? 1.08 : 1.14);
+  return Math.min(dpr,cap);
+};
+const highPixelCost = () => (window.innerWidth*window.innerHeight*(window.devicePixelRatio||1)**2)>6500000;
+const landingTargetFps = () => lowPowerMode ? 30 : (mobileMode ? 40 : (highPixelCost()?42:50));
 
 /* La experiencia móvil tiene un orden propio. Si se cruza el breakpoint,
    recargamos una sola vez para no mezclar estados de navegación. */
@@ -91,7 +98,7 @@ const vectors = {right:{x:1,y:0},left:{x:-1,y:0},down:{x:0,y:1},up:{x:0,y:-1}};
 
 scenes.forEach((scene,index)=>{
   if(gsap){
-    gsap.set(scene,{autoAlpha:index===currentScene?1:0,visibility:index===currentScene?'visible':'hidden',pointerEvents:index===currentScene?'auto':'none',xPercent:0,yPercent:0,scale:1,filter:'blur(0px)',zIndex:index===currentScene?3:1});
+    gsap.set(scene,{autoAlpha:index===currentScene?1:0,visibility:index===currentScene?'visible':'hidden',pointerEvents:index===currentScene?'auto':'none',xPercent:0,yPercent:0,scale:1,filter:'none',zIndex:index===currentScene?3:1});
   }else{
     scene.style.visibility=index===currentScene?'visible':'hidden';
     scene.style.opacity=index===currentScene?'1':'0';
@@ -169,18 +176,18 @@ function transitionTo(target,direction){
   isTransitioning=true;playTransitionEffect(direction,oldIndex,target);
   const oldInner=oldScene.querySelector('.scene-inner'),newInner=newScene.querySelector('.scene-inner');
   gsap.killTweensOf([oldScene,newScene,oldInner,newInner]);
-  gsap.set(newScene,{visibility:'visible',autoAlpha:1,pointerEvents:'none',zIndex:4,xPercent:vector.x*103,yPercent:vector.y*103,scale:1.025,filter:mobileMode?'none':'blur(5px)',force3D:true});
+  gsap.set(newScene,{visibility:'visible',autoAlpha:1,pointerEvents:'none',zIndex:4,xPercent:vector.x*103,yPercent:vector.y*103,scale:1.025,filter:'none',force3D:true});
   if(newInner)gsap.set(newInner,{x:vector.x*75,y:vector.y*75,scale:1.015});
   gsap.set(oldScene,{zIndex:3});
   const tl=gsap.timeline({onComplete(){
-    gsap.set(oldScene,{visibility:'hidden',autoAlpha:0,pointerEvents:'none',xPercent:0,yPercent:0,scale:1,filter:'blur(0px)',zIndex:1});
+    gsap.set(oldScene,{visibility:'hidden',autoAlpha:0,pointerEvents:'none',xPercent:0,yPercent:0,scale:1,filter:'none',zIndex:1});
     if(oldInner)gsap.set(oldInner,{x:0,y:0,scale:1});
     gsap.set(newScene,{pointerEvents:'auto',zIndex:3});
     isTransitioning=false;ignoreWheelUntil=performance.now()+(mobileMode?1050:300);
   }});
-  tl.to(oldScene,{xPercent:vector.x*(mobileMode?-14:-20),yPercent:vector.y*(mobileMode?-14:-20),scale:mobileMode?.975:.96,autoAlpha:.12,filter:mobileMode?'none':'blur(4px)',force3D:true,duration:mobileMode?1.38:.96,ease:'power4.inOut'},0);
+  tl.to(oldScene,{xPercent:vector.x*(mobileMode?-14:-20),yPercent:vector.y*(mobileMode?-14:-20),scale:mobileMode?.975:.96,autoAlpha:.12,filter:'none',force3D:true,duration:mobileMode?1.38:.96,ease:'power4.inOut'},0);
   if(oldInner)tl.to(oldInner,{x:vector.x*(mobileMode?-24:-42),y:vector.y*(mobileMode?-24:-42),scale:mobileMode?.994:.985,force3D:true,duration:mobileMode?1.38:.96,ease:'power4.inOut'},0);
-  tl.to(newScene,{xPercent:0,yPercent:0,scale:1,filter:'blur(0px)',force3D:true,duration:mobileMode?1.46:1.02,ease:'power4.inOut'},0);
+  tl.to(newScene,{xPercent:0,yPercent:0,scale:1,filter:'none',force3D:true,duration:mobileMode?1.46:1.02,ease:'power4.inOut'},0);
   if(newInner)tl.to(newInner,{x:0,y:0,scale:1,force3D:true,duration:mobileMode?1.50:1.06,ease:'power4.out'},.03);
   currentScene=target;updateInterface();
   setTimeout(()=>{revealSceneContent(newScene);},mobileMode?640:390);
@@ -305,7 +312,7 @@ const parallaxSetters=gsap ? parallaxElements.map((el,index)=>({
   amount:12+index*8
 })) : [];
 window.addEventListener('pointermove',event=>{
-  if(!gsap||innerWidth<=760||document.hidden)return;
+  if(!gsap||innerWidth<=760||document.hidden||currentScene!==1)return;
   const nx=event.clientX/innerWidth-.5,ny=event.clientY/innerHeight-.5;
   parallaxSetters.forEach(item=>{item.x(nx*item.amount);item.y(ny*item.amount)});
 },{passive:true});
@@ -343,7 +350,7 @@ landingSceneEl.addEventListener('pointerleave',()=>{
 });
 let nameLastFrameAt=0;
 (function nameInteractionLoop(frameNow=0){
-  const nameTargetFps=lowPowerMode?30:(mobileMode?45:60);
+  const nameTargetFps=landingTargetFps();
   const nameCanDraw=!frameNow||frameNow-nameLastFrameAt>=1000/nameTargetFps;
   if(!document.hidden && currentScene===0 && nameCanDraw){
     nameLastFrameAt=frameNow||performance.now();
@@ -374,14 +381,14 @@ function initLandingThree(){
     const key=new THREE.DirectionalLight(0xffffff,4.2);key.position.set(-4,5,6);landingScene.add(key);
     const green=new THREE.PointLight(0x69ff83,19,13,2);green.position.set(3,-1,4);landingScene.add(green);
     const soft=new THREE.PointLight(0xdfffe4,13,12,2);soft.position.set(-3,2,4);landingScene.add(soft);
-    const geometry=new THREE.TorusKnotGeometry(.90,.25,mobileMode?(lowPowerMode?112:144):(lowPowerMode?190:238),mobileMode?(lowPowerMode?20:24):(lowPowerMode?34:44),2,3);
+    const geometry=new THREE.TorusKnotGeometry(.90,.25,mobileMode?(lowPowerMode?96:128):(lowPowerMode?132:168),mobileMode?(lowPowerMode?18:22):(lowPowerMode?24:30),2,3);
     const material=new THREE.MeshPhysicalMaterial({color:0x9effa8,roughness:.065,metalness:.02,transmission:.48,transparent:true,opacity:.91,thickness:.95,ior:1.4,clearcoat:1,clearcoatRoughness:.04,iridescence:.10,side:THREE.DoubleSide});
     landingKnot=new THREE.Mesh(geometry,material);landingKnot.position.set(landingBaseX,landingBaseY,1);landingScene.add(landingKnot);
     landingWire=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial({color:0x218a43,wireframe:true,transparent:true,opacity:.052,depthWrite:false}));landingWire.position.copy(landingKnot.position);landingScene.add(landingWire);
-    const haloGeometry=new THREE.TorusGeometry(1.34,.006,8,mobileMode?(lowPowerMode?64:82):(lowPowerMode?104:138)),haloMaterial=new THREE.MeshBasicMaterial({color:0x208b42,transparent:true,opacity:.105});
+    const haloGeometry=new THREE.TorusGeometry(1.34,.006,8,mobileMode?(lowPowerMode?56:72):(lowPowerMode?82:104)),haloMaterial=new THREE.MeshBasicMaterial({color:0x208b42,transparent:true,opacity:.105});
     landingHaloA=new THREE.Mesh(haloGeometry,haloMaterial);landingHaloA.rotation.x=Math.PI*.64;landingHaloA.position.set(landingBaseX,landingBaseY,.35);landingScene.add(landingHaloA);
     landingHaloB=new THREE.Mesh(haloGeometry,haloMaterial.clone());landingHaloB.scale.setScalar(1.18);landingHaloB.rotation.y=Math.PI*.63;landingHaloB.material.opacity=.045;landingHaloB.position.set(landingBaseX,landingBaseY,.18);landingScene.add(landingHaloB);
-    const count=mobileMode?(lowPowerMode?34:46):(lowPowerMode?62:88),positions=new Float32Array(count*3);for(let i=0;i<count;i++){positions[i*3]=(Math.random()-.5)*5;positions[i*3+1]=(Math.random()-.5)*3.2;positions[i*3+2]=.1+Math.random()*1.3}
+    const count=mobileMode?(lowPowerMode?28:40):(lowPowerMode?46:64),positions=new Float32Array(count*3);for(let i=0;i<count;i++){positions[i*3]=(Math.random()-.5)*5;positions[i*3+1]=(Math.random()-.5)*3.2;positions[i*3+2]=.1+Math.random()*1.3}
     const pGeo=new THREE.BufferGeometry();pGeo.setAttribute('position',new THREE.BufferAttribute(positions,3));landingPoints=new THREE.Points(pGeo,new THREE.PointsMaterial({color:0x208c43,size:.011,transparent:true,opacity:.20}));landingScene.add(landingPoints);
     landingClock=new THREE.Clock();resizeLandingThree();renderLandingThree();
   }catch(error){console.error('Three.js error:',error);artifactFallback.classList.add('visible')}
@@ -390,7 +397,7 @@ function setLandingArtifactPointer(clientX,clientY){
   landingPointer.x=clientX/innerWidth*2-1;
   landingPointer.y=-(clientY/innerHeight*2-1);
 }
-window.addEventListener('pointermove',event=>setLandingArtifactPointer(event.clientX,event.clientY),{passive:true});
+window.addEventListener('pointermove',event=>{if(currentScene===0&&!document.hidden)setLandingArtifactPointer(event.clientX,event.clientY)},{passive:true});
 landingSceneEl.addEventListener('touchmove',event=>{
   if(currentScene!==0||!event.touches.length)return;
   const t=event.touches[0];
@@ -432,7 +439,7 @@ function renderLandingThree(frameNow=0){
     window.setTimeout(()=>requestAnimationFrame(renderLandingThree),160);
     return;
   }
-  const targetFps=lowPowerMode?30:(mobileMode?45:60);
+  const targetFps=landingTargetFps();
   const minFrameMs=1000/targetFps;
   if(frameNow&&frameNow-landingLastFrameAt<minFrameMs){requestAnimationFrame(renderLandingThree);return;}
   landingLastFrameAt=frameNow||performance.now();
@@ -456,7 +463,7 @@ const whatsappUrl='https://wa.me/5493424281088?text=Hola%20Franco%2C%20vi%20tu%2
 
 function resizeSphereCanvas(){
   const rect=photoSphere.getBoundingClientRect();
-  sphereWidth=rect.width;sphereHeight=rect.height;sphereDPR=Math.min(devicePixelRatio||1,mobileMode?(lowPowerMode?1:1.12):(lowPowerMode?1.15:1.42));
+  sphereWidth=rect.width;sphereHeight=rect.height;sphereDPR=Math.min(devicePixelRatio||1,mobileMode?(lowPowerMode?.90:1):(lowPowerMode?1:1.18));
   microbotCanvas.width=Math.round(sphereWidth*sphereDPR);microbotCanvas.height=Math.round(sphereHeight*sphereDPR);
   microbotCanvas.style.width=`${sphereWidth}px`;microbotCanvas.style.height=`${sphereHeight}px`;
   microCtx.setTransform(sphereDPR,0,0,sphereDPR,0,0);
@@ -711,7 +718,7 @@ landingSceneEl.addEventListener('pointerleave',()=>{
   requestAnimationFrame(reactiveLandingColorLoop);
 })();
 
-console.info('[Portfolio] build V30 vegvisir-nav');
+console.info('[Portfolio] build V34 performance-balance');
 
 async function boot(){try{await document.fonts.ready}catch(error){console.warn('No se pudieron esperar las fuentes.',error)}configureMobileExperience();initLandingThree();updateInterface();landingNameWrap.classList.add('is-ready');revealSceneContent(scenes[currentScene]);if(mobileMode&&currentScene===1)scheduleIdleSphereTease(1050)}
 boot();
@@ -1308,7 +1315,7 @@ function getBufferedAhead(video){
    reutilizar esos bytes cuando el mismo URL se abre en el visor grande. */
 function warmReelMedia(video,{aggressive=false}={}){
   if(!video) return;
-  const wanted=aggressive?'auto':'metadata';
+  const wanted=aggressive?'auto':'none';
   if(video.preload!==wanted) video.preload=wanted;
   video.muted=true;
   video.playsInline=true;
@@ -1591,7 +1598,7 @@ window.addEventListener('resize',()=>{
 },{passive:true});
 
 /* Primera precarga liviana: sólo metadata. La carga agresiva comienza al acercarse a Reels. */
-runWhenIdle(()=>reelDeviceVideos.forEach(video=>warmReelMedia(video,{aggressive:false})),1200);
+/* V34: sin precarga global de reels; se activan al acercarse a la escena 04. */
 
 
 
