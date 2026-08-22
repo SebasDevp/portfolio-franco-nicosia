@@ -4,16 +4,19 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 const deviceMemory = Number(navigator.deviceMemory || 8);
 const cpuCores = Number(navigator.hardwareConcurrency || 8);
 const lowPowerMode = deviceMemory <= 4 || cpuCores <= 4;
-const mobileMedia = window.matchMedia('(max-width:760px)');
-const mobileMode = mobileMedia.matches;
+const mobileMedia = window.matchMedia('(max-width:900px)');
+const coarsePointerMedia = window.matchMedia('(pointer: coarse)');
+const mobileMode = mobileMedia.matches || (coarsePointerMedia.matches && window.innerWidth < 1100);
+if(mobileMode) document.body.classList.add('mobile-experience');
 const getRenderDPR = () => Math.min(
   window.devicePixelRatio || 1,
-  mobileMode ? 1.15 : (lowPowerMode ? 1.25 : (window.innerWidth < 900 ? 1.35 : 1.5))
+  mobileMode ? 1.05 : (lowPowerMode ? 1.25 : (window.innerWidth < 900 ? 1.35 : 1.5))
 );
 
 /* La experiencia móvil tiene un orden propio. Si se cruza el breakpoint,
    recargamos una sola vez para no mezclar estados de navegación. */
 mobileMedia.addEventListener?.('change',()=>window.location.reload());
+coarsePointerMedia.addEventListener?.('change',()=>window.location.reload());
 const runWhenIdle = (callback, timeout=900) => {
   if('requestIdleCallback' in window){
     return window.requestIdleCallback(callback,{timeout});
@@ -37,12 +40,12 @@ const transitionBeam = document.getElementById('transitionBeam');
 const transitionFlare = document.getElementById('transitionFlare');
 const transitionIndex = document.getElementById('transitionIndex');
 
-const mobileSceneOrder = [1,0,2,3];
+const mobileSceneOrder = [0,1,2,3];
 const desktopSceneOrder = [0,1,2,3];
 const activeSceneOrder = mobileMode ? mobileSceneOrder : desktopSceneOrder;
 const displayIndexForScene = sceneIndex => activeSceneOrder.indexOf(sceneIndex) + 1;
 
-let currentScene = mobileMode ? 1 : 0;
+let currentScene = 0;
 let isTransitioning = false;
 let wheelAccumulator = 0;
 let wheelResetTimer = null;
@@ -50,10 +53,10 @@ let ignoreWheelUntil = 0;
 let reelVideoViewerOpen = false;
 
 const forwardRoute = mobileMode ? {
-  1:{target:0,direction:'down'},
-  0:{target:2,direction:'down'},
+  0:{target:1,direction:'down'},
+  1:{target:2,direction:'down'},
   2:{target:3,direction:'down'},
-  3:{target:1,direction:'up'}
+  3:{target:0,direction:'up'}
 } : {
   0:{target:1,direction:'right'},
   1:{target:2,direction:'right'},
@@ -61,10 +64,10 @@ const forwardRoute = mobileMode ? {
   3:{target:0,direction:'left'}
 };
 const backwardRoute = mobileMode ? {
-  1:{target:3,direction:'down'},
+  0:{target:3,direction:'down'},
   3:{target:2,direction:'up'},
-  2:{target:0,direction:'up'},
-  0:{target:1,direction:'up'}
+  2:{target:1,direction:'up'},
+  1:{target:0,direction:'up'}
 } : {
   0:{target:3,direction:'right'},
   3:{target:2,direction:'up'},
@@ -86,8 +89,8 @@ function configureMobileExperience(){
   if(!mobileMode)return;
   document.body.classList.add('mobile-experience');
   const mobileLabels={
-    1:['01','Franco'],
-    0:['02','Inicio'],
+    0:['01','Inicio'],
+    1:['02','Franco'],
     2:['03','Trabajo'],
     3:['04','Reels']
   };
@@ -160,14 +163,14 @@ function transitionTo(target,direction){
     gsap.set(oldScene,{visibility:'hidden',autoAlpha:0,pointerEvents:'none',xPercent:0,yPercent:0,scale:1,filter:'blur(0px)',zIndex:1});
     if(oldInner)gsap.set(oldInner,{x:0,y:0,scale:1});
     gsap.set(newScene,{pointerEvents:'auto',zIndex:3});
-    isTransitioning=false;ignoreWheelUntil=performance.now()+(mobileMode?720:300);
+    isTransitioning=false;ignoreWheelUntil=performance.now()+(mobileMode?1050:300);
   }});
-  tl.to(oldScene,{xPercent:vector.x*(mobileMode?-14:-20),yPercent:vector.y*(mobileMode?-14:-20),scale:mobileMode?.975:.96,autoAlpha:.12,filter:mobileMode?'blur(2px)':'blur(4px)',force3D:true,duration:mobileMode?1.18:.96,ease:'power4.inOut'},0);
-  if(oldInner)tl.to(oldInner,{x:vector.x*(mobileMode?-24:-42),y:vector.y*(mobileMode?-24:-42),scale:mobileMode?.994:.985,force3D:true,duration:mobileMode?1.18:.96,ease:'power4.inOut'},0);
-  tl.to(newScene,{xPercent:0,yPercent:0,scale:1,filter:'blur(0px)',force3D:true,duration:mobileMode?1.24:1.02,ease:'power4.inOut'},0);
-  if(newInner)tl.to(newInner,{x:0,y:0,scale:1,force3D:true,duration:mobileMode?1.28:1.06,ease:'power4.out'},.03);
+  tl.to(oldScene,{xPercent:vector.x*(mobileMode?-14:-20),yPercent:vector.y*(mobileMode?-14:-20),scale:mobileMode?.975:.96,autoAlpha:.12,filter:mobileMode?'blur(2px)':'blur(4px)',force3D:true,duration:mobileMode?1.38:.96,ease:'power4.inOut'},0);
+  if(oldInner)tl.to(oldInner,{x:vector.x*(mobileMode?-24:-42),y:vector.y*(mobileMode?-24:-42),scale:mobileMode?.994:.985,force3D:true,duration:mobileMode?1.38:.96,ease:'power4.inOut'},0);
+  tl.to(newScene,{xPercent:0,yPercent:0,scale:1,filter:'blur(0px)',force3D:true,duration:mobileMode?1.46:1.02,ease:'power4.inOut'},0);
+  if(newInner)tl.to(newInner,{x:0,y:0,scale:1,force3D:true,duration:mobileMode?1.50:1.06,ease:'power4.out'},.03);
   currentScene=target;updateInterface();
-  setTimeout(()=>{revealSceneContent(newScene);},mobileMode?520:390);
+  setTimeout(()=>{revealSceneContent(newScene);},mobileMode?640:390);
 }
 
 function goForward(){const route=forwardRoute[currentScene];transitionTo(route.target,route.direction)}
@@ -201,14 +204,28 @@ window.addEventListener('keydown',event=>{
 });
 
 let touchStartX=0,touchStartY=0,touchStartTime=0,touchStartedOnSphere=false,touchStartScrollTop=0,touchStartedAtTop=false,touchStartedAtBottom=false,lastMobileNavigationAt=0;
+let mobileEdgeIntentDirection=0,mobileEdgeIntentAt=0,mobileEdgeIntentTimer=null;
+function resetMobileEdgeIntent(){
+  mobileEdgeIntentDirection=0;mobileEdgeIntentAt=0;
+  document.body.classList.remove('mobile-edge-armed');
+  delete document.body.dataset.edgeDirection;
+  clearTimeout(mobileEdgeIntentTimer);
+}
+function armMobileEdgeIntent(direction){
+  mobileEdgeIntentDirection=direction;mobileEdgeIntentAt=performance.now();
+  document.body.classList.add('mobile-edge-armed');
+  document.body.dataset.edgeDirection=direction>0?'next':'prev';
+  clearTimeout(mobileEdgeIntentTimer);
+  mobileEdgeIntentTimer=setTimeout(resetMobileEdgeIntent,2400);
+}
 window.addEventListener('touchstart',event=>{
   const t=event.touches[0];
   touchStartX=t.clientX;touchStartY=t.clientY;touchStartTime=performance.now();
   touchStartedOnSphere=Boolean(event.target.closest('#photoSphere'));
   const scene=scenes[currentScene];
   touchStartScrollTop=scene?.scrollTop||0;
-  touchStartedAtTop=touchStartScrollTop<=4;
-  touchStartedAtBottom=Boolean(scene)&&scene.scrollHeight-scene.clientHeight-touchStartScrollTop<=6;
+  touchStartedAtTop=touchStartScrollTop<=6;
+  touchStartedAtBottom=Boolean(scene)&&scene.scrollHeight-scene.clientHeight-touchStartScrollTop<=8;
 },{passive:true});
 window.addEventListener('touchend',event=>{
   if(reelVideoViewerOpen||touchStartedOnSphere||isTransitioning)return;
@@ -221,18 +238,29 @@ window.addEventListener('touchend',event=>{
     return;
   }
 
-  /* En mobile el gesto vertical primero pertenece al contenido. Sólo una segunda
-     intención, iniciada ya en el borde del scroll, cambia de escena. */
-  if(duration<170||Math.abs(dy)<125||Math.abs(dy)<Math.abs(dx)*1.18)return;
+  // Un swipe accidental nunca cambia de sección. Debe ser vertical, largo y deliberado.
+  if(duration<210||Math.abs(dy)<145||Math.abs(dy)<Math.abs(dx)*1.22)return;
   const scene=scenes[currentScene];
-  const scrollable=scene&&scene.scrollHeight>scene.clientHeight+10;
+  const scrollable=scene&&scene.scrollHeight>scene.clientHeight+14;
+  const direction=dy<0?1:-1;
+
+  // En escenas largas el primer gesto siempre pertenece al scroll. Al llegar al borde,
+  // el primer overscroll arma la navegación y un segundo gesto confirma el cambio.
   if(scrollable){
-    if(dy<0&&!touchStartedAtBottom)return;
-    if(dy>0&&!touchStartedAtTop)return;
+    const atRelevantEdge=direction>0?touchStartedAtBottom:touchStartedAtTop;
+    if(!atRelevantEdge){resetMobileEdgeIntent();return;}
+    const now=performance.now();
+    const confirmed=mobileEdgeIntentDirection===direction && now-mobileEdgeIntentAt>320 && now-mobileEdgeIntentAt<2400;
+    if(!confirmed){armMobileEdgeIntent(direction);return;}
+    resetMobileEdgeIntent();
+  }else{
+    // Heroes de una pantalla: gesto más largo y no repetible rápidamente.
+    if(Math.abs(dy)<185||duration<250)return;
   }
-  if(performance.now()-lastMobileNavigationAt<1150)return;
+
+  if(performance.now()-lastMobileNavigationAt<1450)return;
   lastMobileNavigationAt=performance.now();
-  dy<0?goForward():goBackward();
+  direction>0?goForward():goBackward();
 },{passive:true});
 
 /* Cursor */
@@ -375,8 +403,8 @@ function resizeLandingThree(){
   else if(innerWidth>1450){landingBaseX=-2.88;landingBaseScale=1.045;}
   else if(innerWidth>1100){landingBaseX=-2.60;landingBaseScale=1.005;}
   else if(innerWidth>760){landingBaseX=-1.29;landingBaseScale=.855;}
-  else{landingBaseX=0;landingBaseScale=.72;}
-  landingBaseY=innerWidth>760?.04:.92;
+  else{landingBaseX=0;landingBaseScale=.74;}
+  landingBaseY=mobileMode?1.28:(innerWidth>760?.04:.92);
   const scale=landingBaseScale;
   landingKnot.scale.setScalar(scale);landingWire.scale.setScalar(scale*1.006);landingHaloA.scale.setScalar(scale*.92);landingHaloB.scale.setScalar(scale*1.02);
   landingKnot.position.set(landingBaseX,landingBaseY,1);landingWire.position.copy(landingKnot.position);landingHaloA.position.set(landingBaseX,landingBaseY,.35);landingHaloB.position.set(landingBaseX,landingBaseY,.18);
@@ -660,6 +688,8 @@ landingSceneEl.addEventListener('pointerleave',()=>{
   }
   requestAnimationFrame(reactiveLandingColorLoop);
 })();
+
+console.info('[Portfolio] build V29 mobile-reels');
 
 async function boot(){try{await document.fonts.ready}catch(error){console.warn('No se pudieron esperar las fuentes.',error)}configureMobileExperience();initLandingThree();updateInterface();landingNameWrap.classList.add('is-ready');revealSceneContent(scenes[currentScene]);if(mobileMode&&currentScene===1)scheduleIdleSphereTease(1050)}
 boot();
@@ -1541,3 +1571,91 @@ window.addEventListener('resize',()=>{
 /* Primera precarga liviana: sólo metadata. La carga agresiva comienza al acercarse a Reels. */
 runWhenIdle(()=>reelDeviceVideos.forEach(video=>warmReelMedia(video,{aggressive:false})),1200);
 
+
+
+/* =========================================================
+   V29 — MOBILE REELS: DECK HORIZONTAL / ACTIVE FOCUS
+   - Todos los teléfonos parten compactos.
+   - El que queda centrado o se toca crece y recupera color.
+   - Swipe horizontal con snap entre reels.
+   - El botón PLAY conserva el visor original.
+========================================================= */
+(function initV29MobileReels(){
+  if(!mobileMode) return;
+
+  const row=document.querySelector('.scene-reels .reel-devices-row');
+  const cards=[...document.querySelectorAll('.scene-reels .reel-device[data-reel-src]')];
+  if(!row||!cards.length) return;
+
+  let activeCard=cards.find(card=>card.classList.contains('reel-device-main'))||cards[0];
+  let scrollRaf=0;
+  let settleTimer=0;
+
+  const centerCard=(card,{smooth=true}={})=>{
+    if(!card) return;
+    const target=card.offsetLeft-(row.clientWidth-card.offsetWidth)/2;
+    row.scrollTo({left:Math.max(0,target),behavior:smooth?'smooth':'auto'});
+  };
+
+  const setActiveCard=(card,{center=false,smooth=true}={})=>{
+    if(!card||card===activeCard && !center) return;
+    cards.forEach(item=>{
+      const active=item===card;
+      item.classList.toggle('is-mobile-active',active);
+      item.setAttribute('aria-current',active?'true':'false');
+    });
+    activeCard=card;
+    if(center) centerCard(card,{smooth});
+    warmReelMedia(card.querySelector('.reel-device-video'),{aggressive:true});
+  };
+
+  const nearestToCenter=()=>{
+    const bounds=row.getBoundingClientRect();
+    const cx=bounds.left+bounds.width/2;
+    let winner=activeCard;
+    let best=Infinity;
+    cards.forEach(card=>{
+      const rect=card.getBoundingClientRect();
+      const distance=Math.abs((rect.left+rect.width/2)-cx);
+      if(distance<best){best=distance;winner=card}
+    });
+    return winner;
+  };
+
+  cards.forEach(card=>{
+    card.tabIndex=0;
+    card.addEventListener('click',event=>{
+      if(event.target.closest('.reel-play')) return;
+      setActiveCard(card,{center:true,smooth:true});
+    });
+    card.addEventListener('focusin',()=>setActiveCard(card,{center:true,smooth:true}));
+  });
+
+  row.addEventListener('scroll',()=>{
+    if(scrollRaf) cancelAnimationFrame(scrollRaf);
+    scrollRaf=requestAnimationFrame(()=>{
+      const nearest=nearestToCenter();
+      if(nearest!==activeCard) setActiveCard(nearest,{center:false});
+    });
+    clearTimeout(settleTimer);
+    settleTimer=setTimeout(()=>centerCard(activeCard,{smooth:true}),120);
+  },{passive:true});
+
+  // Evita que un swipe horizontal dentro del deck intente cambiar de escena.
+  row.addEventListener('touchstart',event=>event.stopPropagation(),{passive:true});
+  row.addEventListener('touchmove',event=>event.stopPropagation(),{passive:true});
+  row.addEventListener('touchend',event=>event.stopPropagation(),{passive:true});
+
+  // Estado inicial: reel central activo, pero todos siguen visibles y navegables.
+  cards.forEach(card=>card.classList.remove('is-mobile-active'));
+  setActiveCard(activeCard,{center:false});
+  requestAnimationFrame(()=>requestAnimationFrame(()=>centerCard(activeCard,{smooth:false})));
+
+  const v29BaseUpdateInterface=updateInterface;
+  updateInterface=function(){
+    v29BaseUpdateInterface();
+    if(currentScene===3){
+      requestAnimationFrame(()=>centerCard(activeCard,{smooth:false}));
+    }
+  };
+})();

@@ -3325,3 +3325,412 @@ body[data-scene="3"] .reel-device-video{
   body.mobile-experience .scene-about .sphere-world{height:420px;min-height:420px}
   body.mobile-experience .scene-about .photo-sphere{width:min(78vw,330px);height:min(78vw,330px)}
 }
+
+
+/* =========================================================
+   V28 — MOBILE STABLE / AUTHORITATIVE OVERRIDES
+   Esta capa está al final a propósito: corrige cualquier regla mobile anterior.
+========================================================= */
+@media (max-width:900px){
+  html{height:100%;overflow:hidden;background:#040605}
+  body.mobile-experience{
+    width:100%;height:100%;min-height:100%;overflow:hidden!important;
+    touch-action:manipulation;overscroll-behavior:none;
+    -webkit-text-size-adjust:100%;
+  }
+
+  body.mobile-experience .stage{
+    position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;
+    overflow:hidden!important;
+  }
+
+  body.mobile-experience .scene{
+    position:absolute!important;inset:0!important;width:100%!important;height:100dvh!important;
+    max-height:100dvh!important;
+  }
+
+  /* SOBRE MÍ ES LA PRIMERA ESCENA EN MOBILE Y TIENE SCROLL REAL */
+  body.mobile-experience .scene-about,
+  body.mobile-experience .scene-work,
+  body.mobile-experience .scene-reels{
+    overflow-x:hidden!important;overflow-y:auto!important;
+    overscroll-behavior-y:contain!important;
+    -webkit-overflow-scrolling:touch!important;
+    touch-action:pan-y!important;
+    scroll-behavior:auto!important;
+  }
+
+  body.mobile-experience .scene-about .scene-inner{
+    position:relative!important;width:100%!important;height:auto!important;min-height:max-content!important;
+    padding:76px 20px calc(152px + env(safe-area-inset-bottom))!important;
+  }
+  body.mobile-experience .scene-about .about-layout{
+    display:flex!important;flex-direction:column!important;align-items:stretch!important;
+    width:100%!important;height:auto!important;min-height:0!important;gap:28px!important;
+    transform:none!important;
+  }
+  body.mobile-experience .scene-about .sphere-world{
+    order:-1!important;position:relative!important;width:100%!important;
+    height:clamp(390px,105vw,470px)!important;min-height:clamp(390px,105vw,470px)!important;
+    margin:0 auto 4px!important;overflow:visible!important;
+  }
+  body.mobile-experience .scene-about .photo-sphere{
+    width:min(84vw,360px)!important;height:min(84vw,360px)!important;
+  }
+  body.mobile-experience .scene-about .about-copy{
+    position:relative!important;width:100%!important;height:auto!important;padding:0 2px 0!important;
+  }
+  body.mobile-experience .scene-about .about-title{
+    font-size:clamp(49px,13.8vw,66px)!important;line-height:.94!important;
+  }
+  body.mobile-experience .scene-about .about-description{
+    max-width:none!important;font-size:12.4px!important;line-height:1.76!important;
+  }
+  body.mobile-experience .scene-about .about-data{
+    width:100%!important;max-width:none!important;margin-top:28px!important;
+  }
+  body.mobile-experience .scene-about .scene-footer{display:none!important}
+
+  /* LANDING: ARTEFACTO ARRIBA / NOMBRE ABAJO */
+  body.mobile-experience .scene-landing{
+    overflow:hidden!important;touch-action:pan-y!important;
+  }
+  body.mobile-experience .scene-landing .landing-three{
+    position:absolute!important;inset:0!important;top:0!important;left:0!important;
+    width:100%!important;height:100%!important;z-index:4!important;
+  }
+  body.mobile-experience .scene-landing .landing-name-wrap{
+    z-index:3!important;top:73%!important;left:50%!important;
+    width:96vw!important;height:205px!important;
+  }
+  body.mobile-experience .scene-landing .landing-name{
+    font-size:clamp(70px,20.5vw,98px)!important;line-height:.80!important;
+  }
+  body.mobile-experience .scene-landing .landing-name-line{
+    line-height:.93!important;padding-inline:.11em!important;padding-bottom:.08em!important;
+  }
+  body.mobile-experience .scene-landing .landing-name-helper{
+    top:54.5%!important;left:50%!important;max-width:84vw!important;
+    font-size:6px!important;line-height:1.5!important;text-align:center!important;
+  }
+  body.mobile-experience .scene-landing .landing-scanline{top:56%!important}
+
+  /* UI y zonas seguras */
+  body.mobile-experience .header{height:68px!important;padding:0 16px!important}
+  body.mobile-experience .route-nav{
+    bottom:max(12px,env(safe-area-inset-bottom))!important;
+    z-index:5400!important;
+  }
+  body.mobile-experience .direction-ui{
+    right:12px!important;bottom:76px!important;z-index:5400!important;
+  }
+  body.mobile-experience .scene-work .scene-inner,
+  body.mobile-experience .scene-reels .scene-inner{
+    height:auto!important;min-height:max-content!important;
+    padding-top:78px!important;padding-bottom:calc(150px + env(safe-area-inset-bottom))!important;
+  }
+
+  /* Confirmación visual del segundo swipe en el borde. */
+  body.mobile-experience::after{
+    content:"DESLIZÁ OTRA VEZ PARA CAMBIAR";
+    position:fixed;z-index:8900;left:50%;bottom:72px;
+    transform:translate(-50%,14px);opacity:0;pointer-events:none;
+    padding:8px 12px;border:1px solid rgba(117,255,121,.22);border-radius:999px;
+    background:rgba(3,8,5,.72);backdrop-filter:blur(10px);
+    color:rgba(175,255,183,.78);font-family:"DM Mono",monospace;font-size:6.2px;
+    letter-spacing:.09em;white-space:nowrap;
+    transition:opacity .28s ease,transform .28s ease;
+  }
+  body.mobile-experience.mobile-edge-armed::after{
+    opacity:1;transform:translate(-50%,0);
+  }
+
+  /* Menos carga visual mientras se hace scroll/touch. */
+  body.mobile-experience .global-grid{display:none!important}
+  body.mobile-experience .mouse-glow,.cursor-dot,.cursor-ring{display:none!important}
+  body.mobile-experience .transition-beam{filter:blur(7px)!important}
+  body.mobile-experience .transition-flare{filter:blur(4px)!important}
+}
+
+@media (max-width:900px) and (max-height:700px){
+  body.mobile-experience .scene-about .sphere-world{
+    height:390px!important;min-height:390px!important;
+  }
+  body.mobile-experience .scene-about .photo-sphere{
+    width:min(76vw,320px)!important;height:min(76vw,320px)!important;
+  }
+  body.mobile-experience .scene-landing .landing-name-wrap{top:75%!important;height:180px!important}
+  body.mobile-experience .scene-landing .landing-name{font-size:clamp(62px,18.8vw,84px)!important}
+}
+
+/* =========================================================
+   V29 — MOBILE ORDER + REELS HORIZONTAL FOCUS
+   Desktop queda sin cambios. Sólo se activa en la experiencia mobile.
+========================================================= */
+@media (max-width:900px){
+  /* Página 04: más aire arriba y contenido en flujo para que la timeline
+     quede inmediatamente asociada al deck de teléfonos. */
+  body.mobile-experience .scene-reels .scene-inner{
+    padding-top:82px!important;
+    padding-bottom:118px!important;
+  }
+
+  body.mobile-experience .scene-reels .reels-layout{
+    display:block!important;
+    min-height:0!important;
+  }
+
+  body.mobile-experience .scene-reels .reels-copy{
+    padding-inline:18px;
+    margin-bottom:8px;
+  }
+
+  body.mobile-experience .scene-reels .reels-title{
+    font-size:clamp(48px,14vw,66px)!important;
+    line-height:.92!important;
+  }
+
+  body.mobile-experience .scene-reels .reels-description{
+    max-width:34rem;
+    margin-top:16px;
+    font-size:10px;
+    line-height:1.65;
+  }
+
+  body.mobile-experience .scene-reels .reels-back{
+    display:none;
+  }
+
+  body.mobile-experience .scene-reels .reel-gallery{
+    position:relative!important;
+    min-height:0!important;
+    height:auto!important;
+    margin:0!important;
+    transform:none!important;
+    overflow:visible!important;
+    perspective:none!important;
+  }
+
+  /* Deck horizontal. El padding lateral permite centrar el primer/último reel. */
+  body.mobile-experience .scene-reels .reel-devices-row{
+    position:relative!important;
+    top:auto!important;
+    left:auto!important;
+    right:auto!important;
+    width:100%!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    gap:22px!important;
+    padding:20px calc(50vw - 73px) 24px!important;
+    overflow-x:auto!important;
+    overflow-y:visible!important;
+    overscroll-behavior-x:contain;
+    scroll-snap-type:x mandatory;
+    scroll-padding-inline:calc(50vw - 73px);
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    transform:none!important;
+    touch-action:pan-x;
+  }
+
+  body.mobile-experience .scene-reels .reel-devices-row::-webkit-scrollbar{
+    display:none;
+  }
+
+  /* Todos parten deliberadamente pequeños. El seleccionado gana escala y color. */
+  body.mobile-experience .scene-reels .reel-device,
+  body.mobile-experience .scene-reels .reel-device-left,
+  body.mobile-experience .scene-reels .reel-device-main,
+  body.mobile-experience .scene-reels .reel-device-right{
+    flex:0 0 146px!important;
+    width:146px!important;
+    min-width:146px!important;
+    max-width:146px!important;
+    padding-top:0!important;
+    margin:0!important;
+    scroll-snap-align:center;
+    scroll-snap-stop:always;
+    z-index:2!important;
+    opacity:.54;
+    filter:saturate(.25) brightness(.76);
+    transform:scale(.88)!important;
+    transform-origin:center center!important;
+    transition:
+      transform .55s cubic-bezier(.16,1,.3,1),
+      opacity .36s ease,
+      filter .46s ease!important;
+    will-change:transform,filter,opacity;
+  }
+
+  body.mobile-experience .scene-reels .reel-device.is-mobile-active{
+    z-index:7!important;
+    opacity:1;
+    filter:none;
+    transform:scale(1.18)!important;
+  }
+
+  body.mobile-experience .scene-reels .device-frame{
+    padding:5px;
+    border-radius:23px;
+    box-shadow:0 18px 44px rgba(0,0,0,.34);
+    transition:border-color .4s ease,box-shadow .45s ease,background .4s ease;
+  }
+
+  body.mobile-experience .scene-reels .reel-device.is-mobile-active .device-frame{
+    border-color:rgba(117,255,121,.36);
+    background:rgba(12,19,14,.96);
+    box-shadow:0 28px 66px rgba(0,0,0,.46),0 0 34px rgba(117,255,121,.08);
+  }
+
+  body.mobile-experience .scene-reels .device-notch{
+    top:11px;
+    height:4px;
+  }
+
+  body.mobile-experience .scene-reels .reel-screen{
+    border-radius:18px;
+  }
+
+  body.mobile-experience .scene-reels .reel-device-video{
+    opacity:.50!important;
+    filter:saturate(.2) contrast(1.04) brightness(.48)!important;
+    transform:scale(1.02)!important;
+    transition:opacity .45s ease,filter .5s ease,transform .65s cubic-bezier(.16,1,.3,1)!important;
+  }
+
+  body.mobile-experience .scene-reels .reel-device.is-mobile-active .reel-device-video{
+    opacity:.96!important;
+    filter:saturate(1.05) contrast(1.02) brightness(.88)!important;
+    transform:scale(1.01)!important;
+  }
+
+  body.mobile-experience .scene-reels .reel-video-vignette{
+    opacity:.78;
+    transition:opacity .4s ease;
+  }
+
+  body.mobile-experience .scene-reels .reel-device.is-mobile-active .reel-video-vignette{
+    opacity:.35;
+  }
+
+  body.mobile-experience .scene-reels .reel-number{
+    top:32px;
+    left:11px;
+    font-size:5.2px;
+  }
+
+  body.mobile-experience .scene-reels .reel-caption{
+    left:11px;
+    right:11px;
+    bottom:12px;
+  }
+
+  body.mobile-experience .scene-reels .reel-caption small{
+    font-size:4.7px;
+  }
+
+  body.mobile-experience .scene-reels .reel-caption strong,
+  body.mobile-experience .scene-reels .reel-caption-main strong{
+    font-size:10px!important;
+    line-height:1.1!important;
+  }
+
+  body.mobile-experience .scene-reels .reel-meta{
+    margin-top:6px;
+    font-size:5.2px;
+    opacity:.58;
+    transition:opacity .35s ease;
+  }
+
+  body.mobile-experience .scene-reels .reel-device.is-mobile-active .reel-meta{
+    opacity:1;
+  }
+
+  body.mobile-experience .scene-reels .reel-play,
+  body.mobile-experience .scene-reels .reel-play-main{
+    width:42px!important;
+    height:42px!important;
+    gap:3px;
+    opacity:.78;
+    color:var(--green);
+    background:rgba(4,12,6,.58);
+    border:1px solid rgba(117,255,121,.28);
+    box-shadow:none;
+    transition:width .42s cubic-bezier(.16,1,.3,1),height .42s cubic-bezier(.16,1,.3,1),opacity .35s ease,background .35s ease,box-shadow .4s ease!important;
+  }
+
+  body.mobile-experience .scene-reels .reel-device.is-mobile-active .reel-play,
+  body.mobile-experience .scene-reels .reel-device.is-mobile-active .reel-play-main{
+    width:54px!important;
+    height:54px!important;
+    opacity:1;
+    color:#031006;
+    background:var(--green);
+    border-color:transparent;
+    box-shadow:0 0 34px rgba(117,255,121,.18);
+  }
+
+  body.mobile-experience .scene-reels .reel-play-icon,
+  body.mobile-experience .scene-reels .reel-play-main .reel-play-icon{
+    font-size:11px!important;
+  }
+
+  body.mobile-experience .scene-reels .reel-play small,
+  body.mobile-experience .scene-reels .reel-play-main small{
+    font-size:3.9px;
+    color:rgba(215,255,220,.72);
+  }
+
+  body.mobile-experience .scene-reels .reel-device.is-mobile-active .reel-play small,
+  body.mobile-experience .scene-reels .reel-device.is-mobile-active .reel-play-main small{
+    color:rgba(3,16,6,.68);
+  }
+
+  /* Timeline mobile: más cerca del deck, compacta y dentro del flujo. */
+  body.mobile-experience .scene-reels .editing-timeline.reel-timeline-compact{
+    position:relative!important;
+    inset:auto!important;
+    left:auto!important;
+    right:auto!important;
+    top:auto!important;
+    bottom:auto!important;
+    width:auto!important;
+    height:72px!important;
+    margin:-2px 16px 24px!important;
+    padding:8px 10px!important;
+    background:rgba(7,11,8,.68);
+  }
+
+  body.mobile-experience .scene-reels .reel-timeline-compact .timeline-header{
+    margin-bottom:4px;
+  }
+
+  body.mobile-experience .scene-reels .reel-timeline-compact .timeline-track{
+    height:14px;
+    padding-left:23px;
+  }
+
+  body.mobile-experience .scene-reels .reel-timeline-compact .clip{height:9px}
+  body.mobile-experience .scene-reels .reel-timeline-compact .waveform{height:7px}
+  body.mobile-experience .scene-reels .reel-timeline-compact .timeline-playhead{top:18px;bottom:6px}
+}
+
+@media (max-width:430px){
+  body.mobile-experience .scene-reels .reel-devices-row{
+    gap:18px!important;
+    padding-inline:calc(50vw - 68px)!important;
+  }
+  body.mobile-experience .scene-reels .reel-device,
+  body.mobile-experience .scene-reels .reel-device-left,
+  body.mobile-experience .scene-reels .reel-device-main,
+  body.mobile-experience .scene-reels .reel-device-right{
+    flex-basis:136px!important;
+    width:136px!important;
+    min-width:136px!important;
+    max-width:136px!important;
+  }
+  body.mobile-experience .scene-reels .reel-device.is-mobile-active{
+    transform:scale(1.17)!important;
+  }
+}
