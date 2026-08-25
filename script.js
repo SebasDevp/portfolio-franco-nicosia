@@ -499,7 +499,7 @@ function resizeLandingThree(){
   // V13: a very small move toward the typography. The scale stays intact;
   // only the horizontal relationship tightens so the 3D overlap feels more intentional.
   if(mobileMode){
-    // V24 mobile: true shared visual center with the name, slightly larger artifact.
+    // V25 mobile: preserve the V24 shared visual center and artifact scale.
     landingBaseX=0;
     landingBaseScale=innerWidth>760?.96:.92;
     landingBaseY=-.10;
