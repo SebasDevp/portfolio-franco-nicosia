@@ -1,5 +1,0 @@
-V35 — 4K Adaptive
-- Canvas 3D con presupuesto de píxeles adaptativo.
-- Desktop sincronizado a 60 FPS.
-- Menos composición GPU en pantallas ultra-high-res.
-- CNAME soyfranconi.com incluido.

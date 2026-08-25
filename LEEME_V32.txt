@@ -1,1 +1,0 @@
-V32: audio ambiente integrado con toggle flotante.

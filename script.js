@@ -344,51 +344,109 @@ window.addEventListener('pointermove',event=>{
   parallaxSetters.forEach(item=>{item.x(nx*item.amount);item.y(ny*item.amount)});
 },{passive:true});
 document.querySelectorAll('.tilt').forEach(card=>{
-  card.addEventListener('pointermove',event=>{if(!gsap||innerWidth<=760)return;const r=card.getBoundingClientRect(),nx=(event.clientX-r.left)/r.width-.5,ny=(event.clientY-r.top)/r.height-.5;gsap.to(card,{rotateY:nx*5,rotateX:ny*-5,scale:1.012,transformPerspective:1200,duration:.45,ease:'power3.out',overwrite:true})});
-  card.addEventListener('pointerleave',()=>gsap&&gsap.to(card,{rotateX:0,rotateY:0,scale:1,duration:.7,ease:'power3.out'}));
+  if(!gsap)return;
+  const rotateY=gsap.quickTo(card,'rotateY',{duration:.45,ease:'power3.out'});
+  const rotateX=gsap.quickTo(card,'rotateX',{duration:.45,ease:'power3.out'});
+  const scale=gsap.quickTo(card,'scale',{duration:.45,ease:'power3.out'});
+  gsap.set(card,{transformPerspective:1200});
+  card.addEventListener('pointermove',event=>{
+    if(innerWidth<=760)return;
+    const r=card.getBoundingClientRect(),nx=(event.clientX-r.left)/r.width-.5,ny=(event.clientY-r.top)/r.height-.5;
+    rotateY(nx*5);rotateX(ny*-5);scale(1.012);
+  },{passive:true});
+  card.addEventListener('pointerleave',()=>gsap.to(card,{rotateX:0,rotateY:0,scale:1,duration:.7,ease:'power3.out',overwrite:true}));
 });
 document.querySelectorAll('.magnetic').forEach(el=>{
-  el.addEventListener('pointermove',event=>{if(!gsap||innerWidth<=760)return;const r=el.getBoundingClientRect(),dx=event.clientX-r.left-r.width/2,dy=event.clientY-r.top-r.height/2;gsap.to(el,{x:dx*.11,y:dy*.11,duration:.35,ease:'power3.out'})});
-  el.addEventListener('pointerleave',()=>gsap&&gsap.to(el,{x:0,y:0,duration:.58,ease:'elastic.out(1,.45)'}));
+  if(!gsap)return;
+  const moveX=gsap.quickTo(el,'x',{duration:.35,ease:'power3.out'});
+  const moveY=gsap.quickTo(el,'y',{duration:.35,ease:'power3.out'});
+  el.addEventListener('pointermove',event=>{
+    if(innerWidth<=760)return;
+    const r=el.getBoundingClientRect(),dx=event.clientX-r.left-r.width/2,dy=event.clientY-r.top-r.height/2;
+    moveX(dx*.11);moveY(dy*.11);
+  },{passive:true});
+  el.addEventListener('pointerleave',()=>gsap.to(el,{x:0,y:0,duration:.58,ease:'elastic.out(1,.45)',overwrite:true}));
 });
 
-/* Landing name interactive fill */
+/* Landing name — V17: clean image interaction system */
 const landingSceneEl=document.querySelector('.scene-landing');
 const landingNameWrap=document.getElementById('landingNameWrap');
+const landingName=document.getElementById('landingName');
 const landingScanline=document.getElementById('landingScanline');
-let nameTargetFill=92,nameCurrentFill=92,nameTargetX=0,nameTargetY=0,nameCurrentX=0,nameCurrentY=0,nameTiltX=0,nameTiltY=0;
-landingSceneEl.addEventListener('pointermove',event=>{
+const landingSacredGrid=document.getElementById('landingSacredGrid');
+const NAME_REST_X=-180;
+
+
+let nameRevealTargetX=NAME_REST_X,nameRevealTargetY=50,nameRevealX=NAME_REST_X,nameRevealY=50;
+let reactiveGeoTargetX=50,reactiveGeoTargetY=50,reactiveGeoX=50,reactiveGeoY=50;
+
+function setNameRevealVars(x,y){
+  document.documentElement.style.setProperty('--name-cursor-x',`${x}%`);
+  document.documentElement.style.setProperty('--name-cursor-y',`${y}%`);
+}
+function resetNameRevealTarget(){
+  nameRevealTargetX=NAME_REST_X;
+  nameRevealTargetY=50;
+}
+function updateNameRevealTarget(clientX,clientY){
+  if(!landingName)return false;
+  const rect=landingName.getBoundingClientRect();
+  if(!rect.width||!rect.height)return false;
+  const dx=clientX<rect.left?rect.left-clientX:(clientX>rect.right?clientX-rect.right:0);
+  const dy=clientY<rect.top?rect.top-clientY:(clientY>rect.bottom?clientY-rect.bottom:0);
+  const nearX=Math.max(72,Math.min(150,rect.width*.15));
+  const nearY=Math.max(42,Math.min(100,rect.height*.45));
+  const near=dx<=nearX&&dy<=nearY;
+  if(near){
+    nameRevealTargetX=Math.max(-110,Math.min(210,(clientX-rect.left)/rect.width*100));
+    nameRevealTargetY=Math.max(-120,Math.min(220,(clientY-rect.top)/rect.height*100));
+  }else{
+    resetNameRevealTarget();
+  }
+  landingSceneEl.classList.toggle('name-active',near);
+  return near;
+}
+function updateLandingNameInteraction(clientX,clientY){
   if(currentScene!==0)return;
-  const nx=event.clientX/innerWidth-.5;
-  const ny=event.clientY/innerHeight;
-  nameTargetFill=Math.max(2,Math.min(98,ny*108-4));
-  nameTargetX=nx*8;
-  nameTargetY=(ny-.5)*7;
-  nameTiltX=(.5-ny)*1.4;
-  nameTiltY=nx*1.8;
-  landingSceneEl.classList.add('name-active');
-  document.documentElement.style.setProperty('--line-x',`${Math.max(0,Math.min(100,event.clientX/innerWidth*100))}%`);
-  if(gsap){gsap.to(landingScanline,{autoAlpha:.46,duration:.28,ease:'power2.out',overwrite:true})}
-});
-landingSceneEl.addEventListener('pointerleave',()=>{
-  nameTargetFill=92;nameTargetX=0;nameTargetY=0;nameTiltX=0;nameTiltY=0;landingSceneEl.classList.remove('name-active');
+  updateNameRevealTarget(clientX,clientY);
+
+  const px=Math.max(0,Math.min(100,clientX/innerWidth*100));
+  const py=Math.max(0,Math.min(100,clientY/innerHeight*100));
+  document.documentElement.style.setProperty('--line-x',`${px}%`);
+  reactiveGeoTargetX=px;reactiveGeoTargetY=py;
+  const lightX=50+(clientX/innerWidth-.5)*14;
+  const lightY=50+(clientY/innerHeight-.5)*11;
+  document.documentElement.style.setProperty('--light-x',`${Math.max(42,Math.min(58,lightX))}%`);
+  document.documentElement.style.setProperty('--light-y',`${Math.max(44,Math.min(56,lightY))}%`);
+  if(gsap)gsap.to(landingScanline,{autoAlpha:.72,duration:.28,ease:'power2.out',overwrite:true});
+}
+function resetLandingNameInteraction(){
+  resetNameRevealTarget();
+  landingSceneEl.classList.remove('name-active');
+  reactiveGeoTargetX=50;reactiveGeoTargetY=50;
   document.documentElement.style.setProperty('--line-x','50%');
-  if(gsap)gsap.to(landingScanline,{autoAlpha:.30,duration:.5});
-});
+  document.documentElement.style.setProperty('--light-x','50%');
+  document.documentElement.style.setProperty('--light-y','50%');
+  if(gsap)gsap.to(landingScanline,{autoAlpha:.62,duration:.5});
+}
+setNameRevealVars(nameRevealX,nameRevealY);
+landingSceneEl.addEventListener('pointermove',e=>updateLandingNameInteraction(e.clientX,e.clientY),{passive:true});
+landingSceneEl.addEventListener('pointerleave',resetLandingNameInteraction,{passive:true});
+landingSceneEl.addEventListener('touchmove',e=>{if(e.touches.length){const t=e.touches[0];updateLandingNameInteraction(t.clientX,t.clientY)}},{passive:true});
+landingSceneEl.addEventListener('touchend',resetLandingNameInteraction,{passive:true});
+
 let nameLastFrameAt=0;
 (function nameInteractionLoop(frameNow=0){
-  const nameTargetFps=landingTargetFps();
-  const nameCanDraw=!frameNow||frameNow-nameLastFrameAt>=1000/nameTargetFps;
-  if(!document.hidden && currentScene===0 && nameCanDraw){
+  const canDraw=!frameNow||frameNow-nameLastFrameAt>=1000/landingTargetFps();
+  if(!document.hidden&&currentScene===0&&canDraw){
     nameLastFrameAt=frameNow||performance.now();
-    nameCurrentFill+=(nameTargetFill-nameCurrentFill)*.075;
-    nameCurrentX+=(nameTargetX-nameCurrentX)*.07;
-    nameCurrentY+=(nameTargetY-nameCurrentY)*.07;
-    document.documentElement.style.setProperty('--name-fill',`${nameCurrentFill}%`);
-    document.documentElement.style.setProperty('--name-x',`${nameCurrentX}px`);
-    document.documentElement.style.setProperty('--name-y',`${nameCurrentY}px`);
-    document.documentElement.style.setProperty('--name-tilt-x',`${nameTiltX}deg`);
-    document.documentElement.style.setProperty('--name-tilt-y',`${nameTiltY}deg`);
+    nameRevealX+=(nameRevealTargetX-nameRevealX)*.105;
+    nameRevealY+=(nameRevealTargetY-nameRevealY)*.105;
+    setNameRevealVars(nameRevealX,nameRevealY);
+    reactiveGeoX+=(reactiveGeoTargetX-reactiveGeoX)*.055;
+    reactiveGeoY+=(reactiveGeoTargetY-reactiveGeoY)*.055;
+    document.documentElement.style.setProperty('--geo-x',`${reactiveGeoX}%`);
+    document.documentElement.style.setProperty('--geo-y',`${reactiveGeoY}%`);
   }
   requestAnimationFrame(nameInteractionLoop);
 })();
@@ -429,16 +487,6 @@ landingSceneEl.addEventListener('touchmove',event=>{
   if(currentScene!==0||!event.touches.length)return;
   const t=event.touches[0];
   setLandingArtifactPointer(t.clientX,t.clientY);
-  /* El gesto también alimenta la tipografía y la geometría sin bloquear el swipe. */
-  const nx=t.clientX/innerWidth-.5,ny=t.clientY/innerHeight;
-  nameTargetFill=Math.max(2,Math.min(98,ny*108-4));
-  nameTargetX=nx*8;nameTargetY=(ny-.5)*7;nameTiltX=(.5-ny)*1.4;nameTiltY=nx*1.8;
-  landingSceneEl.classList.add('name-active');
-  document.documentElement.style.setProperty('--line-x',`${Math.max(0,Math.min(100,t.clientX/innerWidth*100))}%`);
-},{passive:true});
-landingSceneEl.addEventListener('touchend',()=>{
-  nameTargetX=0;nameTargetY=0;nameTiltX=0;nameTiltY=0;
-  landingPointer.x=0;landingPointer.y=0;
 },{passive:true});
 function resizeLandingThree(){
   if(!landingRenderer||!landingCamera)return;
@@ -450,12 +498,14 @@ function resizeLandingThree(){
   // The overlap is intentional: enough to create depth, but never enough to compromise legibility.
   // V13: a very small move toward the typography. The scale stays intact;
   // only the horizontal relationship tightens so the 3D overlap feels more intentional.
-  if(innerWidth>1650){landingBaseX=-3.08;landingBaseScale=1.075;}
-  else if(innerWidth>1450){landingBaseX=-2.88;landingBaseScale=1.045;}
-  else if(innerWidth>1100){landingBaseX=-2.60;landingBaseScale=1.005;}
-  else if(innerWidth>760){landingBaseX=-1.29;landingBaseScale=.855;}
+  if(innerWidth>2600){landingBaseX=-2.94;landingBaseScale=1.025;}
+  else if(innerWidth>2200){landingBaseX=-2.92;landingBaseScale=1.025;}
+  else if(innerWidth>1650){landingBaseX=-2.90;landingBaseScale=1.025;}
+  else if(innerWidth>1450){landingBaseX=-2.79;landingBaseScale=1.012;}
+  else if(innerWidth>1100){landingBaseX=-2.62;landingBaseScale=.995;}
+  else if(innerWidth>760){landingBaseX=-1.30;landingBaseScale=.855;}
   else{landingBaseX=0;landingBaseScale=.74;}
-  landingBaseY=mobileMode?1.28:(innerWidth>760?.04:.92);
+  landingBaseY=mobileMode?1.28:(innerWidth>760?.035:.92);
   const scale=landingBaseScale;
   landingKnot.scale.setScalar(scale);landingWire.scale.setScalar(scale*1.006);landingHaloA.scale.setScalar(scale*.92);landingHaloB.scale.setScalar(scale*1.02);
   landingKnot.position.set(landingBaseX,landingBaseY,1);landingWire.position.copy(landingKnot.position);landingHaloA.position.set(landingBaseX,landingBaseY,.35);landingHaloB.position.set(landingBaseX,landingBaseY,.18);
@@ -519,7 +569,7 @@ resizeSphereCanvas();
 if(window.ResizeObserver)new ResizeObserver(resizeSphereCanvas).observe(photoSphere);
 
 function applySphereMask(){
-  const r=Math.max(sphereReveal.radius,.001);
+  const r=Math.max(sphereReveal.radius,0);
   if(r<1){
     sphereShell.style.maskImage='none';
     sphereShell.style.webkitMaskImage='none';
@@ -528,25 +578,23 @@ function applySphereMask(){
     return;
   }
 
-  /* V25: la apertura deja de ser un círculo perfecto.
-     Varias elipses suaves se intersectan como una nube orgánica / microscópica. */
+  /* V8: una sola máscara radial suave.
+     Evita seams/recortes de mask-composite en Chrome y mantiene un reveal orgánico. */
   const x=sphereReveal.x,y=sphereReveal.y;
-  const feather=(rx,ry,cx,cy)=>`radial-gradient(ellipse ${rx}px ${ry}px at ${cx}px ${cy}px,
-    transparent 0%,transparent 58%,rgba(0,0,0,.06) 66%,rgba(0,0,0,.22) 78%,rgba(0,0,0,.58) 92%,#000 100%)`;
-  const wobbleX=Math.sin((x+y)*.018)*r*.045;
-  const wobbleY=Math.cos((x-y)*.016)*r*.04;
-  const layers=[
-    feather(r*.94,r*.82,x,y),
-    feather(r*.58,r*.48,x+r*.37+wobbleX,y-r*.13),
-    feather(r*.52,r*.43,x-r*.34,y+r*.18+wobbleY),
-    feather(r*.40,r*.34,x+r*.08,y+r*.40),
-    feather(r*.33,r*.30,x-r*.12,y-r*.40)
-  ];
-  const mask=layers.join(',');
+  const rx=Math.max(1,r*1.03);
+  const ry=Math.max(1,r*.95);
+  const mask=`radial-gradient(ellipse ${rx}px ${ry}px at ${x}px ${y}px,
+    transparent 0%,
+    transparent 55%,
+    rgba(0,0,0,.045) 64%,
+    rgba(0,0,0,.16) 73%,
+    rgba(0,0,0,.42) 84%,
+    rgba(0,0,0,.76) 93%,
+    #000 100%)`;
   sphereShell.style.maskImage=mask;
   sphereShell.style.webkitMaskImage=mask;
-  sphereShell.style.maskComposite='intersect';
-  sphereShell.style.webkitMaskComposite='source-in, source-in, source-in, source-in';
+  sphereShell.style.maskComposite='';
+  sphereShell.style.webkitMaskComposite='';
 }
 
 class SphereBot{
@@ -717,59 +765,17 @@ window.addEventListener('resize',()=>{
 
 
 
-/* =========================================================
-   V14 — smooth cursor color field for name + sacred geometry
-   ========================================================= */
-const landingSacredGrid=document.getElementById('landingSacredGrid');
-let reactiveNameTargetX=-68,reactiveNameTargetY=50,reactiveNameX=-68,reactiveNameY=50;
-let reactiveGeoTargetX=50,reactiveGeoTargetY=50,reactiveGeoX=50,reactiveGeoY=50;
+console.info('[Portfolio] build V17 clean-image-name');
 
-landingSceneEl.addEventListener('pointermove',event=>{
-  if(currentScene!==0)return;
-  const nameRect=landingNameWrap.getBoundingClientRect();
-  // Deliberately allow values outside 0–100: when the cursor moves away,
-  // the green field actually leaves the typography and it settles back to black.
-  reactiveNameTargetX=Math.max(-85,Math.min(185,(event.clientX-nameRect.left)/nameRect.width*100));
-  reactiveNameTargetY=Math.max(-85,Math.min(185,(event.clientY-nameRect.top)/nameRect.height*100));
-  reactiveGeoTargetX=Math.max(0,Math.min(100,event.clientX/innerWidth*100));
-  reactiveGeoTargetY=Math.max(0,Math.min(100,event.clientY/innerHeight*100));
-});
-landingSceneEl.addEventListener('touchmove',event=>{
-  if(currentScene!==0||!event.touches.length)return;
-  const t=event.touches[0],nameRect=landingNameWrap.getBoundingClientRect();
-  reactiveNameTargetX=Math.max(-85,Math.min(185,(t.clientX-nameRect.left)/nameRect.width*100));
-  reactiveNameTargetY=Math.max(-85,Math.min(185,(t.clientY-nameRect.top)/nameRect.height*100));
-  reactiveGeoTargetX=Math.max(0,Math.min(100,t.clientX/innerWidth*100));
-  reactiveGeoTargetY=Math.max(0,Math.min(100,t.clientY/innerHeight*100));
-},{passive:true});
-
-landingSceneEl.addEventListener('pointerleave',()=>{
-  reactiveNameTargetX=-68;
-  reactiveNameTargetY=50;
-  reactiveGeoTargetX=50;
-  reactiveGeoTargetY=50;
-});
-
-(function reactiveLandingColorLoop(){
-  if(!document.hidden&&currentScene===0){
-    reactiveNameX+=(reactiveNameTargetX-reactiveNameX)*.07;
-    reactiveNameY+=(reactiveNameTargetY-reactiveNameY)*.07;
-    reactiveGeoX+=(reactiveGeoTargetX-reactiveGeoX)*.055;
-    reactiveGeoY+=(reactiveGeoTargetY-reactiveGeoY)*.055;
-    document.documentElement.style.setProperty('--name-cursor-x',`${reactiveNameX}%`);
-    document.documentElement.style.setProperty('--name-cursor-y',`${reactiveNameY}%`);
-    document.documentElement.style.setProperty('--geo-x',`${reactiveGeoX}%`);
-    document.documentElement.style.setProperty('--geo-y',`${reactiveGeoY}%`);
-  }
-  requestAnimationFrame(reactiveLandingColorLoop);
-})();
-
-console.info('[Portfolio] build V36 final-adaptive');
-
-async function boot(){try{await document.fonts.ready}catch(error){console.warn('No se pudieron esperar las fuentes.',error)}configureMobileExperience();initLandingThree();updateInterface();landingNameWrap.classList.add('is-ready');revealSceneContent(scenes[currentScene]);if(mobileMode&&currentScene===1)scheduleIdleSphereTease(1050)}
-boot();
-
-/* =========================================================
+function boot(){
+  configureMobileExperience();
+  initLandingThree();
+  updateInterface();
+  landingNameWrap.classList.add('is-ready');
+  revealSceneContent(scenes[currentScene]);
+  if(mobileMode&&currentScene===1)scheduleIdleSphereTease(1050);
+}
+boot();/* =========================================================
    V15 — WORK / SOCIAL SHOWCASE
    Carrusel de contenido + deck de cuentas de Instagram.
    Aislado de la landing para no alterar la primera escena.

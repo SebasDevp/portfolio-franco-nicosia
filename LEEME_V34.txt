@@ -1,1 +1,0 @@
-V34 Performance Balance: reduce carga GPU/CPU sin cambiar el diseño, mantiene música y dominio.

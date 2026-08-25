@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="portfolio-build" content="v36-final-adaptive" />
+  <meta name="portfolio-build" content="v21-landing-name-responsive-right" />
   <meta name="theme-color" content="#ffffff" />
   <meta name="color-scheme" content="dark light" />
   <meta name="description" content="Portfolio de Franco Nicosia — Diseño gráfico, identidad visual, reels, contenido digital, Klouser y gestión visual de marcas." />
@@ -11,10 +11,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://turuleka.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="dns-prefetch" href="//turuleka.com">
   <link rel="preload" href="Assets/Fotoperfil2.webp" as="image" type="image/webp">
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=36.0.0" />
+  <link rel="stylesheet" href="style.css?v=22.0.0" />
 </head>
 <body class="light-interface" data-scene="0">
   <div class="global-noise"></div>
@@ -35,10 +36,16 @@
       <span class="brand-symbol">FN</span>
       <span class="brand-copy">
         <strong>Franco Nicosia</strong>
-        <small>Diseñador gráfico</small>
       </span>
     </button>
-    <div class="header-center"><span></span>PORTFOLIO / 2026<span></span></div>
+    <div class="header-center">
+      <span class="header-center-rule"></span>
+      <div class="header-center-stack">
+        <strong>PORTFOLIO / 2026</strong>
+        <small class="header-discipline">Diseño de la Comunicación Visual</small>
+      </div>
+      <span class="header-center-rule"></span>
+    </div>
     <div class="header-location"><i></i>ARGENTINA</div>
   </header>
 
@@ -71,10 +78,14 @@
       </div>
 
       <div class="landing-name-wrap" id="landingNameWrap">
-        <h1 class="landing-name" id="landingName" aria-label="Franco Nicosia">
-          <span class="landing-name-line" data-text="FRANCO">FRANCO</span>
-          <span class="landing-name-line" data-text="NICOSIA">NICOSIA</span>
-        </h1>
+        <div class="landing-name-image" id="landingName" role="img" aria-label="Franco Nicosia">
+          <img class="landing-name-art landing-name-art-base" src="https://turuleka.com/wp-content/uploads/2026/08/FRANCO-NICOSIA-scaled.png" alt="" draggable="false" decoding="async" />
+          <img class="landing-name-art landing-name-art-reveal" src="https://turuleka.com/wp-content/uploads/2026/08/FRANCO-NICOSIA-scaled.png" alt="" draggable="false" decoding="async" />
+        </div>
+      </div>
+
+      <div class="landing-mobile-discipline" aria-hidden="true">
+        Diseño de la Comunicación Visual
       </div>
 
       <canvas id="landingThree" class="landing-three"></canvas>
@@ -107,9 +118,9 @@
             <span class="reveal-item">pieza hay una</span>
             <em class="reveal-item">mirada.</em>
           </h2>
-          <p class="about-description reveal-item">Soy Franco, tengo 33 años y soy diseñador gráfico oriundo de Santa Fe.</p>
-          <p class="about-description about-description-secondary reveal-item">Trabajo de manera cercana con personas y proyectos de distintos lugares: Santa Fe, Mar del Plata, Buenos Aires y también Colombia.</p>
-          <p class="about-description about-description-secondary reveal-item">Me interesa entender cada universo antes de diseñarlo: qué quiere transmitir, cómo habla y qué necesita para construir una presencia visual reconocible.</p>
+          <p class="about-description reveal-item">Soy Franco, tengo 33 años, estudié Diseño de la Comunicación Visual en FADU-UNL de mi ciudad natal, Santa Fe.</p>
+          <p class="about-description about-description-secondary reveal-item">Actualmente brindo mis servicios de forma remota, con proyectos y personas de distintas partes.</p>
+          <p class="about-description about-description-secondary reveal-item">Me interesa entender cada universo antes de diseñarlo: qué quiere transmitir, cómo habla y qué necesita construir para lograr una presencia visual reconocible.</p>
           <div class="about-data reveal-item">
             <div><small>01</small><strong>33</strong><span>años</span></div>
             <div><small>02</small><strong>SF</strong><span>origen</span></div>
@@ -120,7 +131,7 @@
         <div class="sphere-world reveal-item">
           <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div>
           <div class="photo-sphere" id="photoSphere">
-            <img src="Assets/Fotoperfil2.webp" alt="Franco Nicosia" class="sphere-photo" draggable="false" />
+            <img src="Assets/Fotoperfil2.webp" alt="Franco Nicosia" class="sphere-photo" draggable="false" width="1600" height="1200" decoding="async" />
             <div class="sphere-shell" id="sphereShell"></div>
             <canvas class="microbot-canvas" id="microbotCanvas"></canvas>
             <div class="sphere-reflection"></div>
@@ -132,12 +143,12 @@
             <div class="sphere-meta"><span>FN / 1992</span><span>DESCUBRÍ · CONTACTÁ</span></div>
           </div>
           <div class="sphere-card sphere-card-one parallax"><span>01</span><div><strong>Diseño</strong><small>identidad visual</small></div></div>
-          <div class="sphere-card sphere-card-two parallax"><span>02</span><div><strong>Edición</strong><small>reels + video</small></div></div>
+          <div class="sphere-card sphere-card-two parallax"><span>02</span><div><strong>Edición</strong><small>reels + flyers</small></div></div>
           <div class="sphere-card sphere-card-three parallax"><span>03</span><div><strong>Gestión</strong><small>contenido + comunidad</small></div></div>
           <div class="sphere-helper">DESCUBRÍ LA FOTO<br>CON EL CURSOR</div>
         </div>
       </div>
-      <footer class="scene-footer"><span>02 / 04</span><span>PERSONA · MIRADA · PROCESO</span></footer>
+      <footer class="scene-footer"><span>02 / 04</span></footer>
     </section>
 
     <!-- 03 TRABAJO -->
@@ -174,6 +185,7 @@
                 src="https://turuleka.com/wp-content/uploads/2026/08/1.png"
                 alt="Diseño de carrusel para Turuleka"
                 draggable="false"
+                decoding="async"
               />
               <img
                 id="contentCarouselImageB"
@@ -181,6 +193,7 @@
                 src="https://turuleka.com/wp-content/uploads/2026/08/2.png"
                 alt="Diseño de carrusel para Turuleka"
                 draggable="false"
+                decoding="async"
               />
 
               <div class="content-carousel-vignette"></div>
@@ -228,7 +241,7 @@
                 rel="noopener noreferrer"
                 aria-label="Abrir Instagram de Ale Asesor Fit"
               >
-                <img src="https://turuleka.com/wp-content/uploads/2026/08/igAle.jpeg" alt="Feed de Instagram de Ale Asesor Fit" draggable="false" />
+                <img src="https://turuleka.com/wp-content/uploads/2026/08/igAle.jpeg" alt="Feed de Instagram de Ale Asesor Fit" draggable="false" loading="lazy" decoding="async" />
                 <div class="ig-card-shade"></div>
                 <div class="ig-card-top"><span>01</span><span>ACADEMIA DEPORTIVA</span></div>
                 <div class="ig-card-bottom">
@@ -245,7 +258,7 @@
                 rel="noopener noreferrer"
                 aria-label="Abrir Instagram de María Cecilia Turuleka"
               >
-                <img src="https://turuleka.com/wp-content/uploads/2026/08/igceci.jpeg" alt="Feed de Instagram de María Cecilia Turuleka" draggable="false" loading="lazy" />
+                <img src="https://turuleka.com/wp-content/uploads/2026/08/igceci.jpeg" alt="Feed de Instagram de María Cecilia Turuleka" draggable="false" loading="lazy" decoding="async" />
                 <div class="ig-card-shade"></div>
                 <div class="ig-card-top"><span>02</span><span>MIXED MEDIA</span></div>
                 <div class="ig-card-bottom">
@@ -262,7 +275,7 @@
                 rel="noopener noreferrer"
                 aria-label="Abrir Instagram de Taller de Arte y Reciclado VG"
               >
-                <img src="https://turuleka.com/wp-content/uploads/2026/08/igvane.jpeg" alt="Feed de Instagram de Taller de Arte y Reciclado VG" draggable="false" loading="lazy" />
+                <img src="https://turuleka.com/wp-content/uploads/2026/08/igvane.jpeg" alt="Feed de Instagram de Taller de Arte y Reciclado VG" draggable="false" loading="lazy" decoding="async" />
                 <div class="ig-card-shade"></div>
                 <div class="ig-card-top"><span>03</span><span>ARTE EN ALAMBRE</span></div>
                 <div class="ig-card-bottom">
@@ -298,7 +311,7 @@
         <div class="hologram-preview-glow" aria-hidden="true"></div>
         <div class="hologram-preview-stage" id="hologramPreviewStage">
           <div class="hologram-preview-frame">
-            <img id="hologramPreviewImage" src="" alt="Vista completa de la pieza del carrusel" draggable="false" />
+            <img id="hologramPreviewImage" src="" alt="Vista completa de la pieza del carrusel" draggable="false" decoding="async" />
             <div class="hologram-preview-scan" aria-hidden="true"></div>
             <div class="hologram-preview-grid" aria-hidden="true"></div>
             <div class="hologram-preview-corners" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
@@ -471,6 +484,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
-  <script src="script.js?v=36.0.0"></script>
+  <script src="script.js?v=22.0.0"></script>
 </body>
 </html>
