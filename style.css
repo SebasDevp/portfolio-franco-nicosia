@@ -6177,14 +6177,20 @@ body.low-power-experience .scene-landing .landing-sacred-grid::after{
 }
 
 /* =========================================================
-   V25 — LANDING MOBILE · MICRO LAYOUT REFINEMENT
-   Mobile only. Desktop remains identical to V24.
-   Preserves the centered hero and only repositions interface copy.
+   V26 — LANDING MOBILE · VEGVÍSIR + CAPTURE REFINEMENT
+   Mobile only. Desktop remains identical to V25.
+   Preserves the approved V25 layout, enlarges/centers the Vegvísir and fine-tunes 2026.
    ========================================================= */
 @media (max-width:900px){
   /* ---------- Central composition: unchanged from V24 ---------- */
   body.mobile-experience .scene-landing .landing-sacred-grid{
     z-index:0 !important;
+  }
+  /* Vegvísir shares the exact hero axis with the name + artifact and is slightly larger. */
+  body.mobile-experience .scene-landing .landing-sacred-grid::before,
+  body.mobile-experience .scene-landing .landing-sacred-grid::after{
+    background-position:center 48.5% !important;
+    background-size:min(116vw,720px) auto !important;
   }
   body.mobile-experience .scene-landing .landing-three,
   body.mobile-experience .scene-landing .artifact-fallback{
@@ -6271,7 +6277,7 @@ body.low-power-experience .scene-landing .landing-sacred-grid::after{
   /* © 2026: upper-left corner of the landing content, safely below the persistent header mark. */
   body.mobile-experience .scene-landing .landing-footer span:last-child{
     position:absolute !important;
-    top:58px !important;
+    top:44px !important;
     left:18px !important;
     right:auto !important;
     bottom:auto !important;
@@ -6364,7 +6370,7 @@ body.low-power-experience .scene-landing .landing-sacred-grid::after{
     letter-spacing:.085em !important;
   }
   body.mobile-experience .scene-landing .landing-footer span:last-child{
-    top:55px !important;
+    top:40px !important;
     left:14px !important;
     font-size:9.2px !important;
   }
@@ -6398,7 +6404,7 @@ body.low-power-experience .scene-landing .landing-sacred-grid::after{
     top:58px !important;
   }
   body.mobile-experience .scene-landing .landing-footer span:last-child{
-    top:16px !important;
+    top:10px !important;
   }
   body.mobile-experience .scene-landing .landing-name-helper{
     top:64.5% !important;

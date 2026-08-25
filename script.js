@@ -7,6 +7,8 @@ const saveDataMode = Boolean(navigator.connection?.saveData);
 const mobileMedia = window.matchMedia('(max-width:900px)');
 const coarsePointerMedia = window.matchMedia('(pointer: coarse)');
 const mobileMode = mobileMedia.matches || (coarsePointerMedia.matches && window.innerWidth < 1100);
+/* V26 TEMP — capture-friendly mobile mode. Set to false when screen-record protection is restored. */
+const mobileCaptureFriendlyMode = mobileMode;
 const cssPixelCount = () => Math.max(1, window.innerWidth * window.innerHeight);
 const nativePixelLoad = () => cssPixelCount() * Math.pow(Math.min(window.devicePixelRatio || 1, 3), 2);
 /* V36: además del hardware, contemplamos la presión real de píxeles en móviles
@@ -67,7 +69,10 @@ function syncViewportMetrics(){
 syncViewportMetrics();
 window.visualViewport?.addEventListener('resize',syncViewportMetrics,{passive:true});
 window.addEventListener('orientationchange',()=>setTimeout(syncViewportMetrics,120),{passive:true});
-document.addEventListener('visibilitychange',()=>document.body.classList.toggle('page-is-hidden',document.hidden));
+document.addEventListener('visibilitychange',()=>{
+  if(mobileCaptureFriendlyMode) document.body.classList.remove('page-is-hidden');
+  else document.body.classList.toggle('page-is-hidden',document.hidden);
+});
 
 if(gsap){
   gsap.config({force3D:true});
@@ -459,7 +464,7 @@ let landingBaseX=-3.50,landingBaseY=.04,landingBaseScale=1.18;
 function initLandingThree(){
   if(!THREE){artifactFallback.classList.add('visible');return;}
   try{
-    landingRenderer=new THREE.WebGLRenderer({canvas:landingThree,antialias:!ultraHiResDesktop,alpha:true,powerPreference:'high-performance',precision:ultraHiResDesktop?'mediump':'highp'});
+    landingRenderer=new THREE.WebGLRenderer({canvas:landingThree,antialias:!ultraHiResDesktop,alpha:true,powerPreference:'high-performance',precision:ultraHiResDesktop?'mediump':'highp',preserveDrawingBuffer:mobileCaptureFriendlyMode});
     landingRenderer.setPixelRatio(getRenderDPR());landingRenderer.setClearColor(0x000000,0);landingRenderer.outputColorSpace=THREE.SRGBColorSpace;landingRenderer.toneMapping=THREE.ACESFilmicToneMapping;landingRenderer.toneMappingExposure=1.05;
     landingScene=new THREE.Scene();landingCamera=new THREE.PerspectiveCamera(42,1,.1,100);landingCamera.position.z=7.25;
     landingScene.add(new THREE.AmbientLight(0xffffff,2.15));
@@ -534,7 +539,7 @@ function observeLandingPerformance(now){
   }
 }
 function renderLandingThree(frameNow=0){
-  if(document.hidden||!landingRenderer||!landingScene||!landingCamera||!landingThreeActive){
+  if((document.hidden&&!mobileCaptureFriendlyMode)||!landingRenderer||!landingScene||!landingCamera||!landingThreeActive){
     window.setTimeout(()=>requestAnimationFrame(renderLandingThree),160);
     return;
   }
