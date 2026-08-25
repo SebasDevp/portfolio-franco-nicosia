@@ -147,7 +147,7 @@ function configureMobileExperience(){
     route.querySelector('small').textContent=data[1];
   });
   const helper=landingSceneEl?.querySelector?.('.landing-name-helper span');
-  if(helper)helper.textContent='DESLIZÁ EL DEDO · NOMBRE + OBJETO REACCIONAN';
+  if(helper)helper.textContent='DESLIZÁ EL DEDO';
 }
 
 function revealSceneContent(scene){
@@ -499,10 +499,10 @@ function resizeLandingThree(){
   // V13: a very small move toward the typography. The scale stays intact;
   // only the horizontal relationship tightens so the 3D overlap feels more intentional.
   if(mobileMode){
-    // V23 mobile: center the artifact behind the image name.
+    // V24 mobile: true shared visual center with the name, slightly larger artifact.
     landingBaseX=0;
-    landingBaseScale=innerWidth>760?.80:.74;
-    landingBaseY=.10;
+    landingBaseScale=innerWidth>760?.96:.92;
+    landingBaseY=-.10;
   }else if(innerWidth>2600){landingBaseX=-2.94;landingBaseScale=1.025;landingBaseY=.035;}
   else if(innerWidth>2200){landingBaseX=-2.92;landingBaseScale=1.025;landingBaseY=.035;}
   else if(innerWidth>1650){landingBaseX=-2.90;landingBaseScale=1.025;landingBaseY=.035;}
