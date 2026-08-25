@@ -498,14 +498,18 @@ function resizeLandingThree(){
   // The overlap is intentional: enough to create depth, but never enough to compromise legibility.
   // V13: a very small move toward the typography. The scale stays intact;
   // only the horizontal relationship tightens so the 3D overlap feels more intentional.
-  if(innerWidth>2600){landingBaseX=-2.94;landingBaseScale=1.025;}
-  else if(innerWidth>2200){landingBaseX=-2.92;landingBaseScale=1.025;}
-  else if(innerWidth>1650){landingBaseX=-2.90;landingBaseScale=1.025;}
-  else if(innerWidth>1450){landingBaseX=-2.79;landingBaseScale=1.012;}
-  else if(innerWidth>1100){landingBaseX=-2.62;landingBaseScale=.995;}
-  else if(innerWidth>760){landingBaseX=-1.30;landingBaseScale=.855;}
-  else{landingBaseX=0;landingBaseScale=.74;}
-  landingBaseY=mobileMode?1.28:(innerWidth>760?.035:.92);
+  if(mobileMode){
+    // V23 mobile: center the artifact behind the image name.
+    landingBaseX=0;
+    landingBaseScale=innerWidth>760?.80:.74;
+    landingBaseY=.10;
+  }else if(innerWidth>2600){landingBaseX=-2.94;landingBaseScale=1.025;landingBaseY=.035;}
+  else if(innerWidth>2200){landingBaseX=-2.92;landingBaseScale=1.025;landingBaseY=.035;}
+  else if(innerWidth>1650){landingBaseX=-2.90;landingBaseScale=1.025;landingBaseY=.035;}
+  else if(innerWidth>1450){landingBaseX=-2.79;landingBaseScale=1.012;landingBaseY=.035;}
+  else if(innerWidth>1100){landingBaseX=-2.62;landingBaseScale=.995;landingBaseY=.035;}
+  else if(innerWidth>760){landingBaseX=-1.30;landingBaseScale=.855;landingBaseY=.035;}
+  else{landingBaseX=0;landingBaseScale=.74;landingBaseY=.92;}
   const scale=landingBaseScale;
   landingKnot.scale.setScalar(scale);landingWire.scale.setScalar(scale*1.006);landingHaloA.scale.setScalar(scale*.92);landingHaloB.scale.setScalar(scale*1.02);
   landingKnot.position.set(landingBaseX,landingBaseY,1);landingWire.position.copy(landingKnot.position);landingHaloA.position.set(landingBaseX,landingBaseY,.35);landingHaloB.position.set(landingBaseX,landingBaseY,.18);

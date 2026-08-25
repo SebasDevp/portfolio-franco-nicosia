@@ -6175,3 +6175,119 @@ body.low-power-experience .scene-landing .landing-sacred-grid::after{
 @media (max-width:900px){
   body.mobile-experience .scene-landing .landing-name-wrap{left:50% !important;}
 }
+
+
+/* =========================================================
+   V23 — LANDING MOBILE REFINEMENT
+   Mobile only. Desktop remains identical to V22.
+   Layer order mobile: Vegvísir -> artifact -> name.
+   ========================================================= */
+@media (max-width:900px){
+  /* Depth hierarchy */
+  body.mobile-experience .scene-landing .landing-sacred-grid{
+    z-index:0 !important;
+  }
+  body.mobile-experience .scene-landing .landing-three,
+  body.mobile-experience .scene-landing .artifact-fallback{
+    z-index:4 !important;
+  }
+  body.mobile-experience .scene-landing .landing-name-wrap{
+    z-index:6 !important;
+    left:50% !important;
+  }
+
+  /* Keep the fallback centered too, matching the WebGL artifact. */
+  body.mobile-experience .scene-landing .artifact-fallback{
+    top:50% !important;
+    left:50% !important;
+    transform:translate(-50%,-50%) !important;
+  }
+
+  /* More readable landing typography on phones. */
+  body.mobile-experience .header-location{
+    font-size:8.2px !important;
+    letter-spacing:.105em !important;
+  }
+  body.mobile-experience .scene-landing .landing-name-helper{
+    top:54% !important;
+    font-size:9px !important;
+    line-height:1.36 !important;
+    letter-spacing:.078em !important;
+    max-width:90vw !important;
+  }
+  body.mobile-experience .scene-landing .landing-name-helper i{
+    width:22px !important;
+  }
+  .landing-mobile-discipline{
+    font-size:9px !important;
+    letter-spacing:.075em !important;
+  }
+  body.mobile-experience .scene-landing .landing-side-meta{
+    display:flex !important;
+    left:18px !important;
+    bottom:108px !important;
+  }
+  body.mobile-experience .scene-landing .landing-side-meta p{
+    font-size:8.4px !important;
+    line-height:1.52 !important;
+    letter-spacing:.14em !important;
+  }
+  body.mobile-experience .scene-landing .landing-side-meta > span{
+    width:32px !important;
+    margin-top:8px !important;
+  }
+
+  /* Move DISEÑO · CONTENIDO · COMUNIDAD away from the fixed route nav. */
+  body.mobile-experience .scene-landing .landing-footer{
+    display:block !important;
+    position:absolute !important;
+    z-index:30 !important;
+    inset:0 !important;
+    pointer-events:none !important;
+    font-family:"DM Mono",monospace !important;
+    font-size:8.4px !important;
+    line-height:1.2 !important;
+    letter-spacing:.12em !important;
+    color:rgba(8,15,11,.64) !important;
+  }
+  body.mobile-experience .scene-landing .landing-footer span:first-child{
+    position:absolute !important;
+    top:88px !important;
+    left:18px !important;
+    max-width:78vw !important;
+    white-space:nowrap !important;
+  }
+  body.mobile-experience .scene-landing .landing-footer span:last-child{
+    position:absolute !important;
+    right:16px !important;
+    bottom:66px !important;
+    min-width:0 !important;
+    font-size:7.7px !important;
+    text-align:right !important;
+    white-space:nowrap !important;
+  }
+
+  body.mobile-experience .direction-arrow{
+    width:46px !important;
+    height:46px !important;
+    font-size:20px !important;
+  }
+}
+
+@media (max-width:380px){
+  body.mobile-experience .scene-landing .landing-footer span:first-child{
+    top:82px !important;
+    left:15px !important;
+    font-size:7.7px !important;
+  }
+  body.mobile-experience .scene-landing .landing-side-meta{
+    left:15px !important;
+    bottom:104px !important;
+  }
+  body.mobile-experience .scene-landing .landing-side-meta p{
+    font-size:7.8px !important;
+  }
+  body.mobile-experience .scene-landing .landing-name-helper{
+    font-size:8.3px !important;
+  }
+}
