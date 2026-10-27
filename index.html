@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="portfolio-build" content="v31-reels-experience-swap" />
+  <meta name="portfolio-build" content="v34-nav-motion-reels-meta" />
   <meta name="theme-color" content="#ffffff" />
   <meta name="color-scheme" content="dark light" />
   <meta name="description" content="Diseño y Edición de Contenido Digital para potenciar el mensaje de tu marca" />
@@ -28,7 +28,7 @@
   <link rel="dns-prefetch" href="//turuleka.com">
   <link rel="preload" href="Assets/Fotoperfil2.webp" as="image" type="image/webp">
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=31.0.0" />
+  <link rel="stylesheet" href="style.css?v=34.0.0" />
 </head>
 <body class="light-interface" data-scene="0">
   <div class="global-noise"></div>
@@ -75,7 +75,7 @@
     <button class="route active magnetic" data-jump="0"><span>01</span><small>Inicio</small></button><i></i>
     <button class="route magnetic" data-jump="1"><span>02</span><small>Franco</small></button><i></i>
     <button class="route magnetic" data-jump="2"><span>03</span><small>Reels</small></button><i></i>
-    <button class="route magnetic" data-jump="3"><span>04</span><small>Trabajo</small></button>
+    <button class="route magnetic" data-jump="3"><span>04</span><small>Experiencia</small></button>
   </nav>
 
   <main class="stage">
@@ -137,7 +137,7 @@
           <div class="about-data reveal-item">
             <div><small>01</small><strong>33</strong><span>años</span></div>
             <div><small>02</small><strong>SF</strong><span>origen</span></div>
-            <div><small>03</small><strong>LATAM</strong><span>trabajo remoto</span></div>
+            <div><small>03</small><strong>La Cumbre</strong><span>trabajo remoto</span></div>
           </div>
         </div>
 
@@ -170,16 +170,14 @@
       <div class="scene-inner reels-layout">
         <div class="reels-copy">
           <div class="eyebrow reveal-item"><i></i>03 / REELS + VIDEO</div>
-          <h2 class="reels-title"><span class="reveal-item">Ideas que</span><em class="reveal-item">se mueven.</em></h2>
-          <p class="reels-description reveal-item">Edición de reels, testimonios, clases, contenido promocional y piezas verticales pensadas para comunicar con ritmo y personalidad.</p>
-          <button class="reels-back next-trigger magnetic reveal-item"><span>VOLVER AL INICIO</span><span>←</span></button>
+          <h2 class="reels-title reels-title-v32"><span class="reveal-item">Más allá del</span><em class="reveal-item">FOTOGRAMA</em></h2>
+          <p class="reels-description reveal-item">Cada proyecto tiene algo para contar. A través de la edición, el ritmo y el movimiento, transformo ideas en piezas audiovisuales con identidad, intención y personalidad.</p>
         </div>
 
         <div class="reel-gallery vimeo-showcase-gallery">
           <div class="vimeo-showcase reveal-item" id="vimeoShowcase" aria-label="Carrusel de reels en Vimeo">
             <div class="vimeo-showcase-topline">
               <span>REEL <strong id="vimeoShowcaseCount">01</strong> / 07</span>
-              <span>VIMEO · 9:16</span>
             </div>
 
             <div class="vimeo-showcase-stage">
@@ -247,13 +245,17 @@
           <p class="work-description experience-description reveal-item">
             Mi formación en Diseño de la Comunicación Visual y Posgrado en Motion Graphics me permiten integrar creatividad, comunicación y movimiento para transformar ideas en proyectos visuales con identidad propia. Me especializo en diseño digital y gestión de redes sociales, desarrollando identidades visuales y construyendo experiencias digitales que te conectan con tu público.
           </p>
+
+          <div class="experience-presence experience-presence-copy reveal-item">
+            <a class="experience-drive-cta magnetic" href="https://drive.google.com/drive/folders/1XEYIUfEraotYDxg34WDH0qyMEVPy7Lx7?usp=drive_link" target="_blank" rel="noopener noreferrer">
+              <span>SI QUERÉS VER TODO MI CONTENIDO, INGRESÁ A MI DRIVE</span>
+              <i>↗</i>
+            </a>
+          </div>
         </div>
 
         <div class="experience-video-showcase reveal-item" id="experienceVideoShowcase">
-          <div class="experience-video-topline">
-            <span>PORTFOLIO / MOTION</span>
-            <span>VIMEO · 16:9</span>
-          </div>
+          <div class="experience-video-presence">PRESENCIA · REELS · PUBLICIDAD · FLYERS</div>
 
           <div class="experience-video-frame">
             <div class="experience-video-glow" aria-hidden="true"></div>
@@ -269,19 +271,19 @@
             <div class="experience-video-edge" aria-hidden="true"></div>
           </div>
 
-          <div class="experience-video-meta">
-            <div>
-              <strong>Portfolio en movimiento.</strong>
-              <small>Diseño · edición · motion graphics</small>
-            </div>
-            <span>2017 — 2026</span>
+          <div class="experience-video-meta experience-video-meta-v32">
+            <span class="experience-years">2017 — 2027</span>
+            <button class="experience-back next-trigger magnetic" type="button" aria-label="Volver al inicio">
+              <span>VOLVER AL INICIO</span><i>←</i>
+            </button>
           </div>
+
+
         </div>
       </div>
 
-      <footer class="scene-footer">
+      <footer class="scene-footer experience-footer">
         <span>04 / 04</span>
-        <span>PRESENCIA · REELS · PUBLICIDAD · FLYERS</span>
       </footer>
     </section>
   </main>
@@ -316,6 +318,6 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
   <script src="https://player.vimeo.com/api/player.js"></script>
-  <script src="script.js?v=31.0.0"></script>
+  <script src="script.js?v=34.0.0"></script>
 </body>
 </html>

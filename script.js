@@ -142,7 +142,7 @@ function configureMobileExperience(){
     0:['01','Inicio'],
     1:['02','Franco'],
     2:['03','Reels'],
-    3:['04','Trabajo']
+    3:['04','Experiencia']
   };
   routes.forEach(route=>{
     const sceneIndex=Number(route.dataset.jump);

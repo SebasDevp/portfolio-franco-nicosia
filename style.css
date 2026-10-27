@@ -6878,3 +6878,762 @@ body.low-power-experience .scene-landing .landing-sacred-grid::after{
   body.mobile-experience .scene-experience .experience-video-meta strong{font-size:12px}
   body.mobile-experience .scene-experience .scene-footer{display:none!important}
 }
+
+
+/* =========================================================
+   V32 — PRECISION POLISH
+   Pages 02 / 03 / 04 only. Other scenes remain unchanged.
+========================================================= */
+
+/* PAGE 02 — location card */
+.scene-about .about-data > div:nth-child(3) strong{
+  font-size:clamp(19px,1.55vw,24px);
+  letter-spacing:-.035em;
+  white-space:nowrap;
+}
+
+/* PAGE 03 — copy hierarchy + player behind interface */
+.scene-reels .scene-inner{
+  position:relative;
+  z-index:1;
+}
+.scene-reels .reels-layout{
+  grid-template-columns:minmax(330px,.68fr) minmax(560px,1.32fr);
+  gap:clamp(28px,3.6vw,64px);
+}
+.scene-reels .reels-copy{
+  position:relative;
+  z-index:4;
+}
+.scene-reels .reel-gallery.vimeo-showcase-gallery{
+  position:relative;
+  z-index:1;
+}
+.scene-reels .vimeo-showcase{
+  z-index:1;
+}
+.scene-reels .vimeo-showcase-player-wrap,
+.scene-reels .vimeo-showcase-device,
+.scene-reels .vimeo-showcase-screen,
+.scene-reels .vimeo-showcase-frame{
+  z-index:1;
+}
+.scene-reels .vimeo-showcase-arrow,
+.scene-reels .vimeo-showcase-selector,
+.scene-reels .reel-timeline-compact{
+  z-index:2;
+}
+.scene-reels .reels-title-v32{
+  max-width:520px;
+  font-size:clamp(72px,6.55vw,118px);
+  line-height:.84;
+  letter-spacing:-.068em;
+}
+.scene-reels .reels-title-v32 span{
+  color:#f3f5f3;
+  font-family:"Manrope",sans-serif;
+  font-style:normal;
+  font-weight:400;
+}
+.scene-reels .reels-title-v32 em{
+  margin-top:8px;
+  color:var(--green);
+  font-family:"Playfair Display",serif;
+  font-size:.84em;
+  font-style:italic;
+  font-weight:500;
+  letter-spacing:-.05em;
+  white-space:nowrap;
+}
+.scene-reels .reels-description{
+  max-width:440px;
+  margin-top:34px;
+  font-size:12.5px;
+  line-height:1.75;
+}
+.scene-reels .vimeo-showcase-device{
+  height:min(66vh,570px);
+  padding:8px;
+  border-radius:34px;
+}
+.scene-reels .vimeo-showcase-player-wrap{
+  justify-self:center;
+}
+.scene-reels .vimeo-showcase-glow{
+  width:min(41vw,540px);
+}
+.scene-reels .vimeo-showcase-topline,
+.scene-reels .vimeo-showcase-selector{
+  width:min(100%,680px);
+}
+
+@media (max-width:1280px) and (min-width:901px){
+  .scene-reels .reels-layout{
+    grid-template-columns:minmax(300px,.65fr) minmax(500px,1.35fr);
+    gap:28px;
+  }
+  .scene-reels .reels-title-v32{
+    font-size:clamp(66px,6.2vw,92px);
+  }
+  .scene-reels .vimeo-showcase-device{
+    height:min(63vh,535px);
+  }
+}
+
+@media (max-width:900px){
+  body.mobile-experience .scene-reels{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+  }
+  body.mobile-experience .scene-reels .scene-inner{
+    display:flex!important;
+    flex-direction:column!important;
+    width:100%!important;
+    min-height:100svh!important;
+    padding:92px 18px calc(132px + env(safe-area-inset-bottom))!important;
+    gap:30px!important;
+  }
+  body.mobile-experience .scene-reels .reels-layout{
+    display:flex!important;
+    flex-direction:column!important;
+    width:100%!important;
+    align-items:stretch!important;
+    gap:30px!important;
+  }
+  body.mobile-experience .scene-reels .reels-copy{
+    width:100%!important;
+    max-width:none!important;
+  }
+  body.mobile-experience .scene-reels .reels-title-v32{
+    max-width:100%!important;
+    font-size:clamp(56px,16vw,78px)!important;
+    line-height:.86!important;
+  }
+  body.mobile-experience .scene-reels .reels-title-v32 em{
+    margin-top:5px!important;
+    font-size:.74em!important;
+    white-space:normal!important;
+  }
+  body.mobile-experience .scene-reels .reels-description{
+    max-width:100%!important;
+    margin-top:22px!important;
+    font-size:11.7px!important;
+    line-height:1.72!important;
+  }
+  body.mobile-experience .scene-reels .reel-gallery.vimeo-showcase-gallery{
+    width:100%!important;
+    margin:4px auto 0!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+  }
+  body.mobile-experience .scene-reels .vimeo-showcase{
+    width:100%!important;
+    max-width:430px!important;
+    margin:0 auto!important;
+    padding:0!important;
+  }
+  body.mobile-experience .scene-reels .vimeo-showcase-stage{
+    width:100%!important;
+    display:grid!important;
+    grid-template-columns:42px minmax(0,1fr) 42px!important;
+    gap:8px!important;
+    align-items:center!important;
+    justify-items:center!important;
+  }
+  body.mobile-experience .scene-reels .vimeo-showcase-player-wrap{
+    width:100%!important;
+    justify-self:center!important;
+  }
+  body.mobile-experience .scene-reels .vimeo-showcase-device{
+    width:min(78vw,320px)!important;
+    height:auto!important;
+    max-height:none!important;
+    margin:0 auto!important;
+    aspect-ratio:9/16!important;
+    transform:none!important;
+  }
+  body.mobile-experience .scene-reels .vimeo-showcase-topline,
+  body.mobile-experience .scene-reels .vimeo-showcase-selector{
+    width:min(100%,390px)!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+  }
+  body.mobile-experience .scene-reels .vimeo-showcase-gallery .editing-timeline.reel-timeline-compact{
+    width:min(calc(100% - 4px),430px)!important;
+    margin:18px auto 0!important;
+  }
+}
+
+@media (max-width:430px){
+  body.mobile-experience .scene-reels .vimeo-showcase-stage{
+    grid-template-columns:38px minmax(0,1fr) 38px!important;
+    gap:5px!important;
+  }
+  body.mobile-experience .scene-reels .vimeo-showcase-device{
+    width:min(76vw,304px)!important;
+  }
+}
+
+/* PAGE 04 — experience cleanup and actions */
+.scene-experience .experience-title > em strong{
+  color:var(--green)!important;
+  text-shadow:0 0 34px rgba(117,255,121,.25);
+}
+.scene-experience .experience-video-topline{
+  justify-content:flex-start;
+  margin-bottom:10px;
+}
+.scene-experience .experience-video-meta-v32{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+  min-height:52px;
+  margin-top:13px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.08);
+}
+.scene-experience .experience-years{
+  color:#c8d1ca;
+  font-family:"DM Mono",monospace;
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:.16em;
+  white-space:nowrap;
+}
+.scene-experience .experience-back{
+  min-width:190px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:22px;
+  padding:10px 0 9px;
+  color:#d8ded9;
+  border-bottom:1px solid rgba(255,255,255,.2);
+  background:transparent;
+  font-family:"DM Mono",monospace;
+  font-size:6.8px;
+  letter-spacing:.13em;
+  transition:color .25s ease,border-color .25s ease,transform .25s ease;
+}
+.scene-experience .experience-back i{
+  color:var(--green);
+  font-style:normal;
+  font-size:17px;
+  transition:transform .25s ease;
+}
+.scene-experience .experience-back:hover,
+.scene-experience .experience-back:focus-visible{
+  color:#fff;
+  border-color:var(--green);
+  transform:translateY(-1px);
+  outline:none;
+}
+.scene-experience .experience-back:hover i,
+.scene-experience .experience-back:focus-visible i{
+  transform:translateX(-4px);
+}
+.scene-experience .experience-presence{
+  display:grid;
+  justify-items:end;
+  gap:12px;
+  margin-top:18px;
+}
+.scene-experience .experience-presence-line{
+  color:#c7d0c9;
+  font-family:"DM Mono",monospace;
+  font-size:9px;
+  font-weight:500;
+  letter-spacing:.17em;
+  text-transform:uppercase;
+}
+.scene-experience .experience-drive-cta{
+  position:relative;
+  width:min(100%,520px);
+  min-height:52px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:13px 16px 13px 18px;
+  overflow:hidden;
+  color:#061007;
+  border:1px solid rgba(117,255,121,.78);
+  border-radius:4px;
+  background:var(--green);
+  box-shadow:0 12px 38px rgba(117,255,121,.10);
+  font-family:"DM Mono",monospace;
+  font-size:7.1px;
+  font-weight:500;
+  letter-spacing:.09em;
+  line-height:1.45;
+  text-decoration:none;
+  transition:transform .28s ease,box-shadow .28s ease,filter .28s ease;
+  animation:driveCtaFloat 3.8s ease-in-out infinite;
+}
+.scene-experience .experience-drive-cta::after{
+  content:"";
+  position:absolute;
+  top:-60%;
+  left:-35%;
+  width:30%;
+  height:220%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.42),transparent);
+  transform:rotate(16deg);
+  animation:driveCtaSheen 5.2s ease-in-out infinite;
+  pointer-events:none;
+}
+.scene-experience .experience-drive-cta span,
+.scene-experience .experience-drive-cta i{
+  position:relative;
+  z-index:1;
+}
+.scene-experience .experience-drive-cta i{
+  font-style:normal;
+  font-size:18px;
+  transition:transform .25s ease;
+}
+.scene-experience .experience-drive-cta:hover,
+.scene-experience .experience-drive-cta:focus-visible{
+  transform:translateY(-3px);
+  filter:brightness(1.05);
+  box-shadow:0 18px 48px rgba(117,255,121,.18);
+  outline:none;
+}
+.scene-experience .experience-drive-cta:hover i,
+.scene-experience .experience-drive-cta:focus-visible i{
+  transform:translate(3px,-3px);
+}
+@keyframes driveCtaFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-2px)}
+}
+@keyframes driveCtaSheen{
+  0%,64%{left:-35%;opacity:0}
+  72%{opacity:.7}
+  84%,100%{left:118%;opacity:0}
+}
+.scene-experience .experience-footer{
+  pointer-events:none;
+}
+
+@media (max-width:900px){
+  body.mobile-experience .scene-about .about-data > div:nth-child(3) strong{
+    font-size:clamp(16px,5.1vw,21px)!important;
+  }
+  body.mobile-experience .scene-experience .experience-video-topline{
+    justify-content:flex-start!important;
+  }
+  body.mobile-experience .scene-experience .experience-video-meta-v32{
+    min-height:46px;
+    margin-top:10px;
+    padding-top:10px;
+  }
+  body.mobile-experience .scene-experience .experience-years{
+    font-size:9.5px;
+    letter-spacing:.14em;
+  }
+  body.mobile-experience .scene-experience .experience-back{
+    min-width:156px;
+    font-size:6.2px;
+  }
+  body.mobile-experience .scene-experience .experience-presence{
+    width:100%;
+    justify-items:stretch;
+    gap:12px;
+    margin-top:18px;
+  }
+  body.mobile-experience .scene-experience .experience-presence-line{
+    text-align:center;
+    font-size:7.8px;
+    line-height:1.5;
+    letter-spacing:.13em;
+  }
+  body.mobile-experience .scene-experience .experience-drive-cta{
+    width:100%;
+    min-height:54px;
+    font-size:6.8px;
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .scene-experience .experience-drive-cta,
+  .scene-experience .experience-drive-cta::after{
+    animation:none!important;
+  }
+}
+
+
+/* =========================================================
+   V33 — HARMONY PASS
+   Only pages 03 / 04. Keeps all other scenes untouched.
+========================================================= */
+
+/* ---------------------------------------------------------
+   PAGE 03 — Reels
+   Timeline lives below the player; navigation moves left
+   on desktop only. No overlap with the 9:16 content.
+--------------------------------------------------------- */
+@media (min-width:901px){
+  body[data-scene="2"] .route-nav{
+    left:clamp(48px,6.6vw,104px)!important;
+    right:auto!important;
+    bottom:28px!important;
+    transform:none!important;
+    transform-origin:left bottom!important;
+  }
+
+  .scene-reels .scene-inner{
+    padding-top:88px!important;
+    padding-bottom:92px!important;
+  }
+
+  .scene-reels .reels-layout{
+    grid-template-columns:minmax(350px,.72fr) minmax(570px,1.28fr)!important;
+    gap:clamp(30px,3vw,54px)!important;
+    align-items:center!important;
+  }
+
+  .scene-reels .reels-copy{
+    align-self:center!important;
+    padding-bottom:30px;
+  }
+
+  .scene-reels .reels-description{
+    max-width:465px!important;
+    margin-top:28px!important;
+    font-size:13.6px!important;
+    line-height:1.72!important;
+  }
+
+  .scene-reels .reel-gallery.vimeo-showcase-gallery{
+    display:grid!important;
+    grid-template-rows:auto auto!important;
+    align-content:center!important;
+    justify-items:center!important;
+    gap:12px!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+  }
+
+  .scene-reels .vimeo-showcase{
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    grid-template-rows:auto auto auto!important;
+    padding:0 clamp(22px,2.7vw,44px)!important;
+  }
+
+  .scene-reels .vimeo-showcase-stage{
+    min-height:0!important;
+    height:auto!important;
+    padding:0!important;
+  }
+
+  .scene-reels .vimeo-showcase-player-wrap{
+    height:auto!important;
+    max-height:none!important;
+  }
+
+  .scene-reels .vimeo-showcase-device{
+    height:clamp(440px,60vh,548px)!important;
+    max-height:none!important;
+  }
+
+  .scene-reels .vimeo-showcase-selector{
+    margin-top:8px!important;
+  }
+
+  .scene-reels .vimeo-showcase-gallery .editing-timeline.reel-timeline-compact{
+    position:relative!important;
+    left:auto!important;
+    right:auto!important;
+    bottom:auto!important;
+    width:min(100%,620px)!important;
+    height:68px!important;
+    margin:0 auto!important;
+    padding:7px 12px!important;
+    align-self:start!important;
+  }
+
+  .scene-reels .vimeo-showcase-gallery .reel-timeline-compact .timeline-header{
+    margin-bottom:4px!important;
+  }
+
+  .scene-reels .vimeo-showcase-gallery .reel-timeline-compact .timeline-track{
+    height:12px!important;
+  }
+
+  .scene-reels .vimeo-showcase-gallery .reel-timeline-compact .timeline-playhead{
+    top:17px!important;
+    bottom:5px!important;
+  }
+}
+
+@media (min-width:901px) and (max-height:790px){
+  .scene-reels .scene-inner{
+    padding-top:76px!important;
+    padding-bottom:78px!important;
+  }
+
+  .scene-reels .vimeo-showcase-device{
+    height:clamp(418px,57vh,486px)!important;
+  }
+
+  .scene-reels .reels-title-v32{
+    font-size:clamp(66px,6.1vw,98px)!important;
+  }
+
+  .scene-reels .reels-description{
+    margin-top:22px!important;
+  }
+}
+
+/* Mobile: keep nav centered for ergonomics, but make reel/timeline one
+   centered vertical composition with no dead space or overlap. */
+@media (max-width:900px){
+  body.mobile-experience .scene-reels .scene-inner{
+    padding-top:82px!important;
+    padding-bottom:calc(118px + env(safe-area-inset-bottom))!important;
+    gap:22px!important;
+  }
+
+  body.mobile-experience .scene-reels .reels-layout{
+    gap:22px!important;
+  }
+
+  body.mobile-experience .scene-reels .reels-description{
+    margin-top:18px!important;
+    font-size:12.6px!important;
+    line-height:1.7!important;
+  }
+
+  body.mobile-experience .scene-reels .reel-gallery.vimeo-showcase-gallery{
+    margin:0 auto!important;
+    gap:0!important;
+  }
+
+  body.mobile-experience .scene-reels .vimeo-showcase{
+    max-width:440px!important;
+  }
+
+  body.mobile-experience .scene-reels .vimeo-showcase-device{
+    width:min(76vw,314px)!important;
+  }
+
+  body.mobile-experience .scene-reels .vimeo-showcase-gallery .editing-timeline.reel-timeline-compact{
+    width:min(calc(100% - 18px),430px)!important;
+    height:66px!important;
+    margin:12px auto 0!important;
+    padding:7px 9px!important;
+  }
+}
+
+@media (max-width:430px){
+  body.mobile-experience .scene-reels .vimeo-showcase-device{
+    width:min(74vw,292px)!important;
+  }
+}
+
+
+/* ---------------------------------------------------------
+   PAGE 04 — Experience
+   Copy sits higher. Presence + Drive CTA belong directly
+   underneath the professional text; video stays clean at right.
+--------------------------------------------------------- */
+@media (min-width:901px){
+  .scene-experience .scene-inner{
+    padding-top:78px!important;
+    padding-bottom:92px!important;
+  }
+
+  .scene-experience .experience-layout{
+    align-items:start!important;
+    gap:clamp(44px,5vw,86px)!important;
+  }
+
+  .scene-experience .experience-copy{
+    align-self:start!important;
+    padding-top:0!important;
+    transform:none!important;
+  }
+
+  .scene-experience .experience-title{
+    margin-top:28px!important;
+  }
+
+  .scene-experience .experience-description{
+    margin-top:26px!important;
+  }
+
+  .scene-experience .experience-presence-copy{
+    width:min(100%,510px)!important;
+    justify-items:stretch!important;
+    gap:10px!important;
+    margin-top:22px!important;
+  }
+
+  .scene-experience .experience-presence-copy .experience-presence-line{
+    text-align:left!important;
+    font-size:9.4px!important;
+  }
+
+  .scene-experience .experience-presence-copy .experience-drive-cta{
+    width:100%!important;
+    max-width:510px!important;
+  }
+
+  .scene-experience .experience-video-showcase{
+    align-self:center!important;
+    margin-top:34px!important;
+  }
+}
+
+@media (max-width:900px){
+  body.mobile-experience .scene-experience .scene-inner{
+    padding-top:74px!important;
+    padding-bottom:calc(116px + env(safe-area-inset-bottom))!important;
+  }
+
+  body.mobile-experience .scene-experience .experience-layout{
+    gap:28px!important;
+  }
+
+  body.mobile-experience .scene-experience .experience-copy{
+    padding-inline:18px!important;
+  }
+
+  body.mobile-experience .scene-experience .experience-title{
+    margin-top:18px!important;
+  }
+
+  body.mobile-experience .scene-experience .experience-description{
+    margin-top:20px!important;
+  }
+
+  body.mobile-experience .scene-experience .experience-presence-copy{
+    width:100%!important;
+    margin-top:18px!important;
+    gap:10px!important;
+  }
+
+  body.mobile-experience .scene-experience .experience-presence-copy .experience-presence-line{
+    text-align:left!important;
+    font-size:8px!important;
+  }
+
+  body.mobile-experience .scene-experience .experience-presence-copy .experience-drive-cta{
+    width:100%!important;
+  }
+
+  body.mobile-experience .scene-experience .experience-video-showcase{
+    margin-top:0!important;
+  }
+}
+
+
+/* =========================================================
+   V34 — NAV MOTION + REELS / EXPERIENCE MICRO-REFINEMENT
+   Scoped to desktop movement and pages 03/04.
+========================================================= */
+
+/* Smoothly animate the global route navigation when page 03
+   moves it from center to the left, instead of snapping. */
+@media (min-width:901px){
+  .route-nav{
+    transition:
+      left .72s cubic-bezier(.16,1,.3,1),
+      right .72s cubic-bezier(.16,1,.3,1),
+      bottom .72s cubic-bezier(.16,1,.3,1),
+      transform .72s cubic-bezier(.16,1,.3,1)!important;
+    will-change:left,transform;
+  }
+
+  body[data-scene="2"] .route-nav{
+    transition:
+      left .72s cubic-bezier(.16,1,.3,1),
+      right .72s cubic-bezier(.16,1,.3,1),
+      bottom .72s cubic-bezier(.16,1,.3,1),
+      transform .72s cubic-bezier(.16,1,.3,1)!important;
+  }
+
+  /* Page 03: cleaner player header on desktop. */
+  .scene-reels .vimeo-showcase-topline{
+    display:none!important;
+  }
+
+  .scene-reels .vimeo-showcase{
+    row-gap:7px!important;
+  }
+
+  .scene-reels .reels-description{
+    max-width:485px!important;
+    font-size:14.8px!important;
+    line-height:1.72!important;
+  }
+}
+
+@media (max-width:900px){
+  /* Keep only the reel counter on mobile; the Vimeo 9:16 label is removed. */
+  body.mobile-experience .scene-reels .vimeo-showcase-topline{
+    justify-content:flex-start!important;
+  }
+
+  body.mobile-experience .scene-reels .reels-description{
+    font-size:13.2px!important;
+    line-height:1.72!important;
+  }
+}
+
+/* Page 04: the only label above the video is the requested presence line. */
+.scene-experience .experience-video-presence{
+  margin-bottom:11px;
+  color:#8d978f;
+  font-family:"DM Mono",monospace;
+  font-size:9.6px;
+  font-weight:500;
+  letter-spacing:.16em;
+  line-height:1.35;
+  text-transform:uppercase;
+}
+
+.scene-experience .experience-video-topline{
+  display:none!important;
+}
+
+/* The Drive CTA remains directly below the professional copy. */
+.scene-experience .experience-presence-copy{
+  margin-top:20px!important;
+}
+
+/* Years above the back button, both aligned to the right. */
+.scene-experience .experience-video-meta-v32{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  justify-items:end!important;
+  align-items:end!important;
+  gap:10px!important;
+}
+
+.scene-experience .experience-years{
+  text-align:right!important;
+}
+
+.scene-experience .experience-back{
+  justify-self:end!important;
+}
+
+@media (max-width:900px){
+  body.mobile-experience .scene-experience .experience-video-presence{
+    margin-bottom:9px;
+    font-size:8.2px;
+    letter-spacing:.13em;
+  }
+
+  body.mobile-experience .scene-experience .experience-video-meta-v32{
+    gap:8px!important;
+  }
+}
