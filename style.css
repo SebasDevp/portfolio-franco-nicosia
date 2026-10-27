@@ -7637,3 +7637,146 @@ body.low-power-experience .scene-landing .landing-sacred-grid::after{
     gap:8px!important;
   }
 }
+
+
+/* =========================================================
+   V35 — REELS STAGE + TIMELINE MICRO-REFINEMENT
+   Only page 03 + year correction in page 04 HTML.
+========================================================= */
+
+/* Selector 01–07 removed from markup in V35. Keep a safety rule
+   so stale cached HTML cannot reintroduce visual clutter. */
+.scene-reels .vimeo-showcase-selector{
+  display:none!important;
+}
+
+@media (min-width:901px){
+  /* Slightly lower and larger reel without compromising the full frame. */
+  .scene-reels .vimeo-showcase{
+    transform:translateY(10px)!important;
+  }
+
+  .scene-reels .vimeo-showcase-device{
+    height:clamp(458px,62vh,570px)!important;
+  }
+
+  /* Timeline gains presence and sits clearly below the reel. */
+  .scene-reels .reel-gallery.vimeo-showcase-gallery{
+    gap:16px!important;
+  }
+
+  .scene-reels .vimeo-showcase-gallery .editing-timeline.reel-timeline-compact{
+    width:min(100%,670px)!important;
+    height:78px!important;
+    margin:12px auto 0!important;
+    padding:8px 14px!important;
+  }
+
+  .scene-reels .vimeo-showcase-gallery .reel-timeline-compact .timeline-header{
+    margin-bottom:5px!important;
+    font-size:5.2px!important;
+  }
+
+  .scene-reels .vimeo-showcase-gallery .reel-timeline-compact .timeline-track{
+    height:14px!important;
+  }
+
+  .scene-reels .vimeo-showcase-gallery .reel-timeline-compact .timeline-track small{
+    font-size:4.8px!important;
+  }
+
+  .scene-reels .vimeo-showcase-gallery .reel-timeline-compact .clip{
+    height:11px!important;
+  }
+
+  .scene-reels .vimeo-showcase-gallery .reel-timeline-compact .waveform{
+    height:8px!important;
+  }
+
+  .scene-reels .vimeo-showcase-gallery .reel-timeline-compact .timeline-playhead{
+    top:19px!important;
+    bottom:6px!important;
+  }
+}
+
+@media (min-width:901px) and (max-height:790px){
+  .scene-reels .vimeo-showcase{
+    transform:translateY(7px)!important;
+  }
+
+  .scene-reels .vimeo-showcase-device{
+    height:clamp(430px,59vh,500px)!important;
+  }
+
+  .scene-reels .vimeo-showcase-gallery .editing-timeline.reel-timeline-compact{
+    height:74px!important;
+    margin-top:9px!important;
+  }
+}
+
+@media (max-width:900px){
+  body.mobile-experience .scene-reels .vimeo-showcase{
+    transform:translateY(7px)!important;
+  }
+
+  body.mobile-experience .scene-reels .vimeo-showcase-device{
+    width:min(78vw,326px)!important;
+  }
+
+  body.mobile-experience .scene-reels .vimeo-showcase-gallery .editing-timeline.reel-timeline-compact{
+    width:min(calc(100% - 14px),448px)!important;
+    height:74px!important;
+    margin:16px auto 0!important;
+    padding:8px 10px!important;
+  }
+
+  body.mobile-experience .scene-reels .vimeo-showcase-gallery .reel-timeline-compact .timeline-track{
+    height:13px!important;
+  }
+
+  body.mobile-experience .scene-reels .vimeo-showcase-gallery .reel-timeline-compact .timeline-playhead{
+    top:19px!important;
+    bottom:6px!important;
+  }
+}
+
+@media (max-width:430px){
+  body.mobile-experience .scene-reels .vimeo-showcase-device{
+    width:min(77vw,304px)!important;
+  }
+}
+
+
+/* =========================================================
+   V37 — READABILITY + NATIVE VIMEO CONTROLS
+   Keeps V36 typography improvements and removes all menu masks.
+========================================================= */
+
+/* PAGE 03 — descriptive copy remains larger and easier to read. */
+.scene-reels .reels-description{
+  max-width:500px!important;
+  font-size:15.6px!important;
+  line-height:1.72!important;
+  color:#a4ada6!important;
+}
+
+/* PAGE 04 — stronger, more readable Drive CTA copy. */
+.scene-experience .experience-drive-cta{
+  font-size:8.4px!important;
+  font-weight:700!important;
+  letter-spacing:.075em!important;
+}
+
+@media (max-width:900px){
+  body.mobile-experience .scene-reels .reels-description{
+    font-size:14px!important;
+    line-height:1.7!important;
+    color:#a7b0a9!important;
+  }
+
+  body.mobile-experience .scene-experience .experience-drive-cta{
+    font-size:7.8px!important;
+    font-weight:700!important;
+    letter-spacing:.065em!important;
+  }
+}
