@@ -141,8 +141,8 @@ function configureMobileExperience(){
   const mobileLabels={
     0:['01','Inicio'],
     1:['02','Franco'],
-    2:['03','Trabajo'],
-    3:['04','Reels']
+    2:['03','Reels'],
+    3:['04','Trabajo']
   };
   routes.forEach(route=>{
     const sceneIndex=Number(route.dataset.jump);
@@ -900,6 +900,7 @@ async function workGoToContentSlide(targetIndex){
 
 function workScheduleContentAutoplay(){
   window.clearTimeout(workContentTimer);
+  if(!workContentShowcase) return;
   if(document.hidden || currentScene!==2 || workContentPaused || workContentHologramOpen) return;
 
   workContentTimer = window.setTimeout(async ()=>{
@@ -954,9 +955,11 @@ if(workContentShowcase){
   });
 }
 
-workPreloadSlide(1);
-workUpdateContentMeta(0);
-workScheduleContentAutoplay();
+if(workContentShowcase){
+  workPreloadSlide(1);
+  workUpdateContentMeta(0);
+  workScheduleContentAutoplay();
+}
 
 /* ---------------------------------------------------------
    INSTAGRAM CARD DECK
@@ -1762,7 +1765,7 @@ window.addEventListener('resize',()=>{
   if(!audio||!control||!stateLabel)return;
 
   const SOUND_VOLUME=mobileMode ? .20 : .24;
-  const DUCK_VOLUME=.035;
+  const DUCK_VOLUME=.008;
   let soundWanted=true;          // Cada carga nueva inicia con intención ON.
   let unlocked=false;
   let fadeRaf=0;
@@ -1889,8 +1892,211 @@ window.addEventListener('resize',()=>{
     reelViewerVideo.addEventListener('error',restore);
   }
 
+  window.addEventListener('franco:vimeo-audio',event=>{
+    if(event.detail?.playing){
+      if(!soundWanted||audio.paused)return;
+      ducked=true;
+      fadeTo(DUCK_VOLUME,260);
+    }else{
+      if(!soundWanted)return;
+      ducked=false;
+      if(!audio.paused)fadeTo(SOUND_VOLUME,520);
+    }
+  });
+
   document.addEventListener('visibilitychange',()=>{
     if(document.hidden)return;
     if(soundWanted&&audio.paused)startSound();
   });
+})();
+
+
+/* =========================================================
+   V31 — PAGE 03 / VIMEO SHOWCASE
+   - Cambio de reel inmediato con un solo clic.
+   - Un único iframe: cada flecha actualiza el src directamente.
+   - Sin autoplay.
+   - Audio Vimeo atenúa la música ambiente.
+========================================================= */
+(function initVimeoShowcase(){
+  const root=document.getElementById('vimeoShowcase');
+  const iframe=document.getElementById('vimeoShowcaseFrame');
+  const prev=document.getElementById('vimeoShowcasePrev');
+  const next=document.getElementById('vimeoShowcaseNext');
+  const count=document.getElementById('vimeoShowcaseCount');
+  const selectors=[...document.querySelectorAll('.vimeo-showcase-index[data-vimeo-index]')];
+  if(!root||!iframe) return;
+
+  const videos=[
+    {id:'1239691668',title:'Reel 01 — Franco Nicosia'},
+    {id:'1239699044',title:'Reel 02 — Franco Nicosia'},
+    {id:'1239699353',title:'Reel 03 — Franco Nicosia'},
+    {id:'1239700549',title:'Reel 04 — Franco Nicosia'},
+    {id:'1239703256',title:'Reel 05 — Franco Nicosia'},
+    {id:'1239702929',title:'Reel 06 — Franco Nicosia'},
+    {id:'1239705189',title:'Reel 07 — Franco Nicosia'}
+  ];
+
+  let activeIndex=0;
+  let player=null;
+  let apiTimer=0;
+  let swipeStartX=0;
+  let swipeStartY=0;
+
+  const wrapIndex=index=>(index+videos.length)%videos.length;
+  const announceAudio=playing=>window.dispatchEvent(new CustomEvent('franco:vimeo-audio',{detail:{playing}}));
+  const buildUrl=id=>`https://player.vimeo.com/video/${id}?badge=0&autoplay=0&autopause=1&player_id=vimeoShowcaseFrame&app_id=58479&title=0&byline=0&portrait=0&playsinline=1`;
+
+  function renderState(){
+    if(count) count.textContent=String(activeIndex+1).padStart(2,'0');
+    selectors.forEach((button,index)=>{
+      const active=index===activeIndex;
+      button.classList.toggle('is-active',active);
+      button.setAttribute('aria-current',active?'true':'false');
+    });
+    iframe.title=videos[activeIndex].title;
+  }
+
+  function bindPlayer(){
+    if(!window.Vimeo?.Player) return false;
+    try{
+      player=new window.Vimeo.Player(iframe);
+      player.on('play',()=>announceAudio(true));
+      player.on('pause',()=>announceAudio(false));
+      player.on('ended',()=>announceAudio(false));
+      player.on('error',()=>announceAudio(false));
+      return true;
+    }catch(error){
+      player=null;
+      return false;
+    }
+  }
+
+  async function stopCurrent(){
+    announceAudio(false);
+    if(!player) return;
+    try{await player.pause()}catch(error){}
+  }
+
+  function selectVideo(index){
+    const nextIndex=wrapIndex(index);
+    if(nextIndex===activeIndex) return;
+
+    stopCurrent();
+    activeIndex=nextIndex;
+    renderState();
+
+    const video=videos[activeIndex];
+    root.classList.add('is-switching');
+    player=null;
+    iframe.src=buildUrl(video.id);
+  }
+
+  iframe.addEventListener('load',()=>{
+    root.classList.remove('is-switching');
+    player=null;
+    if(!bindPlayer()) window.setTimeout(()=>bindPlayer(),220);
+  });
+
+  prev?.addEventListener('click',event=>{
+    event.preventDefault();
+    event.stopPropagation();
+    selectVideo(activeIndex-1);
+  });
+
+  next?.addEventListener('click',event=>{
+    event.preventDefault();
+    event.stopPropagation();
+    selectVideo(activeIndex+1);
+  });
+
+  selectors.forEach((button,index)=>button.addEventListener('click',event=>{
+    event.preventDefault();
+    event.stopPropagation();
+    selectVideo(index);
+  }));
+
+  root.addEventListener('touchstart',event=>{
+    event.stopPropagation();
+    const touch=event.touches?.[0];
+    if(!touch) return;
+    swipeStartX=touch.clientX;
+    swipeStartY=touch.clientY;
+  },{passive:true});
+
+  root.addEventListener('touchmove',event=>event.stopPropagation(),{passive:true});
+
+  root.addEventListener('touchend',event=>{
+    event.stopPropagation();
+    const touch=event.changedTouches?.[0];
+    if(!touch) return;
+    const dx=touch.clientX-swipeStartX;
+    const dy=touch.clientY-swipeStartY;
+    if(Math.abs(dx)>54&&Math.abs(dx)>Math.abs(dy)*1.25){
+      selectVideo(activeIndex+(dx<0?1:-1));
+    }
+  },{passive:true});
+
+  const sceneObserver=new MutationObserver(()=>{
+    if(document.body.dataset.scene!=='2') stopCurrent();
+  });
+  sceneObserver.observe(document.body,{attributes:true,attributeFilter:['data-scene']});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stopCurrent()});
+
+  renderState();
+  if(!bindPlayer()){
+    let attempts=0;
+    apiTimer=window.setInterval(()=>{
+      attempts++;
+      if(bindPlayer()||attempts>35){window.clearInterval(apiTimer);apiTimer=0}
+    },180);
+  }
+})();
+
+
+/* =========================================================
+   V31 — PAGE 04 / EXPERIENCE VIMEO
+========================================================= */
+(function initExperienceVimeo(){
+  const iframe=document.getElementById('experienceVideoFrame');
+  if(!iframe) return;
+
+  let player=null;
+  let timer=0;
+  const announceAudio=playing=>window.dispatchEvent(new CustomEvent('franco:vimeo-audio',{detail:{playing}}));
+
+  function connect(){
+    if(!window.Vimeo?.Player) return false;
+    try{
+      player=new window.Vimeo.Player(iframe);
+      player.on('play',()=>announceAudio(true));
+      player.on('pause',()=>announceAudio(false));
+      player.on('ended',()=>announceAudio(false));
+      player.on('error',()=>announceAudio(false));
+      return true;
+    }catch(error){
+      player=null;
+      return false;
+    }
+  }
+
+  async function stop(){
+    announceAudio(false);
+    if(!player) return;
+    try{await player.pause()}catch(error){}
+  }
+
+  const sceneObserver=new MutationObserver(()=>{
+    if(document.body.dataset.scene!=='3') stop();
+  });
+  sceneObserver.observe(document.body,{attributes:true,attributeFilter:['data-scene']});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop()});
+
+  if(!connect()){
+    let attempts=0;
+    timer=window.setInterval(()=>{
+      attempts++;
+      if(connect()||attempts>35){window.clearInterval(timer);timer=0}
+    },180);
+  }
 })();
